@@ -32,7 +32,7 @@ namespace DynamicDiplomacy
                             {
                                 if (Find.TickManager.TicksGame < generateHistoryLength + 2500)
                                 {
-                                    Find.LetterStack.ReceiveLetter("LabelHisGen".Translate(), "DescHisGen".Translate(), LetterDefOf.NeutralEvent, null, null, null, null, null);
+                                    Find.LetterStack.ReceiveLetter("LabelHisGen".Translate(), "DescHisGen".Translate(), LetterDefOf.NeutralEvent);
                                 }
                                 map.GameConditionManager.ActiveConditions.Remove(gameCondition);
                                 ExpandableWorldObjectsUtility.ExpandableWorldObjectsUpdate();
@@ -203,7 +203,7 @@ namespace DynamicDiplomacy
                             factionRelation.kind = FactionRelationKind.Hostile;
                             FactionRelation factionRelation2 = AttackerBase.Faction.RelationWith(allFactionList[i], false);
                             factionRelation2.kind = FactionRelationKind.Hostile;
-                            Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(allFactionList[i], AttackerBase.Faction), LetterDefOf.NeutralEvent, null, default, default);
+                            Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(allFactionList[i], AttackerBase.Faction), LetterDefOf.NeutralEvent);
                             return true;
                         }
                     }
@@ -239,7 +239,7 @@ namespace DynamicDiplomacy
                         Find.IdeoManager.Add(newIdeo);
                         clonefaction.leader.ideo.SetIdeo(newIdeo);
 
-                        Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(clonefaction, AttackerBase.Faction), LetterDefOf.NeutralEvent, null, default, default);
+                        Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(clonefaction, AttackerBase.Faction), LetterDefOf.NeutralEvent);
                         return true;
                     }
                 }
@@ -324,7 +324,7 @@ namespace DynamicDiplomacy
                 if (clonefactioncheck.Count > 0)
                 {
                     FinalDefenderBase.Faction.defeated = true;
-                    Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent, null, default, default);
+                    Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent);
                 }
             }
 
@@ -332,7 +332,7 @@ namespace DynamicDiplomacy
             if (defeatroll <= IncidentWorker_NPCConquest.defeatChance && !HasAnyOtherBase(FinalDefenderBase))
             {
                 FinalDefenderBase.Faction.defeated = true;
-                Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent, null, default, default);
+                Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent);
             }
 
             // Alliance code
@@ -399,7 +399,7 @@ namespace DynamicDiplomacy
                     string allianceListString = allianceList.ToString();
                     allianceListString = allianceListString.Trim().TrimEnd(',');
 
-                    Find.LetterStack.ReceiveLetter("LabelAlliance".Translate(), "DescAlliance".Translate(allianceListString, AttackerBase.Faction), LetterDefOf.NeutralEvent, null, default, default);
+                    Find.LetterStack.ReceiveLetter("LabelAlliance".Translate(), "DescAlliance".Translate(allianceListString, AttackerBase.Faction), LetterDefOf.NeutralEvent);
                     Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown = 11;
                 }
             }
@@ -544,14 +544,14 @@ namespace DynamicDiplomacy
                         {
                             faction2.ideos.SetPrimary(faction.ideos.PrimaryIdeo);
                             faction2.leader.ideo.SetIdeo(faction.ideos.PrimaryIdeo);
-                            Find.LetterStack.ReceiveLetter("LabelDDSurrender".Translate(), "DescDDSurrender".Translate(faction.Name, faction2.Name, faction.ideos.PrimaryIdeo.ToString()), LetterDefOf.NeutralEvent, null, default, default);
+                            Find.LetterStack.ReceiveLetter("LabelDDSurrender".Translate(), "DescDDSurrender".Translate(faction.Name, faction2.Name, faction.ideos.PrimaryIdeo.ToString()), LetterDefOf.NeutralEvent);
                             return true;
                         }
                         else if (faction2count >= (faction1count * 3) && faction2count > 4)
                         {
                             faction.ideos.SetPrimary(faction2.ideos.PrimaryIdeo);
                             faction.leader.ideo.SetIdeo(faction2.ideos.PrimaryIdeo);
-                            Find.LetterStack.ReceiveLetter("LabelDDSurrender".Translate(), "DescDDSurrender".Translate(faction2.Name, faction.Name, faction2.ideos.PrimaryIdeo.ToString()), LetterDefOf.NeutralEvent, null, default, default);
+                            Find.LetterStack.ReceiveLetter("LabelDDSurrender".Translate(), "DescDDSurrender".Translate(faction2.Name, faction.Name, faction2.ideos.PrimaryIdeo.ToString()), LetterDefOf.NeutralEvent);
                             return true;
                         }
                     }

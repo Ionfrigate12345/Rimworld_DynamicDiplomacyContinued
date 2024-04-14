@@ -79,7 +79,7 @@ namespace DynamicDiplomacy
             component.attackerFaction = baseAttacker;
             component.defenderFaction = baseDefender;
             component.combatLoc = combatLoc;
-            Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap), null, null);
+            Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap));
         }
 
         public static List<Pawn> SpawnPawnSet(Map map, List<PawnKindDef> kinds, IntVec3 spot, Faction faction)
@@ -186,7 +186,7 @@ namespace DynamicDiplomacy
                         destroyedSettlement.Tile = AttackerBase.Tile;
                         Find.WorldObjects.Remove(AttackerBase);
                         Find.WorldObjects.Add(destroyedSettlement);
-                        Find.LetterStack.ReceiveLetter("LabelConquestRaze".Translate(), "DescConquestRaze".Translate(AttackerBase.Faction.Name, settlement.Faction.Name), LetterDefOf.NeutralEvent, destroyedSettlement, null, null);
+                        Find.LetterStack.ReceiveLetter("LabelConquestRaze".Translate(), "DescConquestRaze".Translate(AttackerBase.Faction.Name, settlement.Faction.Name), LetterDefOf.NeutralEvent, destroyedSettlement);
                         ExpandableWorldObjectsUtility.ExpandableWorldObjectsUpdate();
                     }
                     else
@@ -195,7 +195,7 @@ namespace DynamicDiplomacy
                         settlement.Name = SettlementNameGenerator.GenerateSettlementName(settlement, null);
                         Find.WorldObjects.Remove(AttackerBase);
                         Find.WorldObjects.Add(settlement);
-                        Find.LetterStack.ReceiveLetter("LabelConquest".Translate(), "DescConquest".Translate(AttackerFaction.Name, settlement.Name, settlement.Faction.Name), LetterDefOf.NeutralEvent, settlement, null, null);
+                        Find.LetterStack.ReceiveLetter("LabelConquest".Translate(), "DescConquest".Translate(AttackerFaction.Name, settlement.Name, settlement.Faction.Name), LetterDefOf.NeutralEvent, settlement);
                     }
 
                     // Defeat check for random conquest
@@ -207,7 +207,7 @@ namespace DynamicDiplomacy
                         if(clonefactioncheck.Count > 0)
                         {
                             AttackerBase.Faction.defeated = true;
-                            Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(AttackerBase.Faction.Name), LetterDefOf.NeutralEvent, null, default, default);
+                            Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(AttackerBase.Faction.Name), LetterDefOf.NeutralEvent);
                         }
                     }
 
@@ -215,7 +215,7 @@ namespace DynamicDiplomacy
                     if (defeatroll <= defeatChance && !HasAnyOtherBase(AttackerBase))
                     {
                         AttackerBase.Faction.defeated = true;
-                        Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(AttackerBase.Faction.Name), LetterDefOf.NeutralEvent, null, default, default);
+                        Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(AttackerBase.Faction.Name), LetterDefOf.NeutralEvent);
                     }
 
                     return true;
@@ -320,7 +320,7 @@ namespace DynamicDiplomacy
                                 factionRelation.kind = FactionRelationKind.Hostile;
                                 FactionRelation factionRelation2 = AttackerBase.Faction.RelationWith(allFactionList[i], false);
                                 factionRelation2.kind = FactionRelationKind.Hostile;
-                                Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(allFactionList[i], AttackerBase.Faction), LetterDefOf.NeutralEvent, null, default, default);
+                                Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(allFactionList[i], AttackerBase.Faction), LetterDefOf.NeutralEvent);
                                 return true;
                             }
                         }
@@ -356,7 +356,7 @@ namespace DynamicDiplomacy
                             Find.IdeoManager.Add(newIdeo);
                             clonefaction.leader.ideo.SetIdeo(newIdeo);
 
-                            Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(clonefaction, AttackerBase.Faction), LetterDefOf.NeutralEvent, null, default, default);
+                            Find.LetterStack.ReceiveLetter("LabelRebellion".Translate(), "DescRebellion".Translate(clonefaction, AttackerBase.Faction), LetterDefOf.NeutralEvent);
                             return true;
                         }
                     }
@@ -430,7 +430,7 @@ namespace DynamicDiplomacy
                     destroyedSettlement.Tile = FinalDefenderBase.Tile;
                     Find.WorldObjects.Remove(FinalDefenderBase);
                     Find.WorldObjects.Add(destroyedSettlement);
-                    Find.LetterStack.ReceiveLetter("LabelConquestRaze".Translate(), "DescConquestRaze".Translate(FinalDefenderBase.Faction.Name, AttackerBase.Faction.Name), LetterDefOf.NeutralEvent, destroyedSettlement, null, null);
+                    Find.LetterStack.ReceiveLetter("LabelConquestRaze".Translate(), "DescConquestRaze".Translate(FinalDefenderBase.Faction.Name, AttackerBase.Faction.Name), LetterDefOf.NeutralEvent, destroyedSettlement, AttackerBase.Faction);
                     ExpandableWorldObjectsUtility.ExpandableWorldObjectsUpdate();
                 }
                 else
@@ -441,7 +441,7 @@ namespace DynamicDiplomacy
                     settlementConquest.Name = SettlementNameGenerator.GenerateSettlementName(settlementConquest, null);
                     Find.WorldObjects.Remove(FinalDefenderBase);
                     Find.WorldObjects.Add(settlementConquest);
-                    Find.LetterStack.ReceiveLetter("LabelConquest".Translate(), "DescConquest".Translate(FinalDefenderBase.Faction.Name, settlementConquest.Name, settlementConquest.Faction.Name), LetterDefOf.NeutralEvent, settlementConquest, null, null);
+                    Find.LetterStack.ReceiveLetter("LabelConquest".Translate(), "DescConquest".Translate(FinalDefenderBase.Faction.Name, settlementConquest.Name, settlementConquest.Faction.Name), LetterDefOf.NeutralEvent, settlementConquest, settlementConquest.Faction);
                 }
 
                 // Defeat check for distance conquest
@@ -453,7 +453,7 @@ namespace DynamicDiplomacy
                     if (clonefactioncheck.Count > 0)
                     {
                         FinalDefenderBase.Faction.defeated = true;
-                        Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent, null, default, default);
+                        Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent);
                     }
                 }
 
@@ -461,7 +461,7 @@ namespace DynamicDiplomacy
                 if (defeatroll <= defeatChance && !HasAnyOtherBase(FinalDefenderBase))
                 {
                     FinalDefenderBase.Faction.defeated = true;
-                    Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent, null, default, default);
+                    Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(FinalDefenderBase.Faction.Name), LetterDefOf.NeutralEvent);
                 }
 
                 // Alliance code
@@ -528,7 +528,7 @@ namespace DynamicDiplomacy
                         string allianceListString = allianceList.ToString();
                         allianceListString = allianceListString.Trim().TrimEnd(',');
 
-                        Find.LetterStack.ReceiveLetter("LabelAlliance".Translate(), "DescAlliance".Translate(allianceListString, AttackerBase.Faction), LetterDefOf.NeutralEvent, null, default, default);
+                        Find.LetterStack.ReceiveLetter("LabelAlliance".Translate(), "DescAlliance".Translate(allianceListString, AttackerBase.Faction), LetterDefOf.NeutralEvent);
                         Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown = 11;
                     }
                 }

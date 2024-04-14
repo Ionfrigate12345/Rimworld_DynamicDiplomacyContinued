@@ -53,7 +53,7 @@ namespace DynamicDiplomacy
 			if ((this.tickFightStarted == 0 && Find.TickManager.TicksGame - this.tickCreated > 10000) || (this.tickFightStarted != 0 && Find.TickManager.TicksGame - this.tickFightStarted > 60000))
 			{
 				Log.Message("Fight timed out");
-				Find.LetterStack.ReceiveLetter("LabelConquestBattleDefended".Translate(), "DescConquestBattleDefended".Translate(defenderFaction.Name, combatLoc.Name, attackerFaction.Name), LetterDefOf.NeutralEvent, combatLoc, null, null);
+				Find.LetterStack.ReceiveLetter("LabelConquestBattleDefended".Translate(), "DescConquestBattleDefended".Translate(defenderFaction.Name, combatLoc.Name, attackerFaction.Name), LetterDefOf.NeutralEvent, combatLoc, attackerFaction);
 				Find.WorldObjects.Remove(this.parent);
 				return;
 			}
@@ -82,7 +82,7 @@ namespace DynamicDiplomacy
 				{
 					if (flag && !flag2)
 					{
-						Find.LetterStack.ReceiveLetter("LabelConquestBattleDefended".Translate(), "DescConquestBattleDefended".Translate(defenderFaction.Name, combatLoc.Name, attackerFaction.Name), LetterDefOf.NeutralEvent, combatLoc, null, null);
+						Find.LetterStack.ReceiveLetter("LabelConquestBattleDefended".Translate(), "DescConquestBattleDefended".Translate(defenderFaction.Name, combatLoc.Name, attackerFaction.Name), LetterDefOf.NeutralEvent, combatLoc, attackerFaction, null);
 					}
 					else
 					{
@@ -103,7 +103,7 @@ namespace DynamicDiplomacy
 							destroyedSettlement.Tile = combatLoc.Tile;
 							Find.WorldObjects.Remove(combatLoc);
 							Find.WorldObjects.Add(destroyedSettlement);
-							Find.LetterStack.ReceiveLetter("LabelConquestRaze".Translate(), "DescConquestRaze".Translate(attackerFaction.Name, defenderFaction.Name), LetterDefOf.NeutralEvent, destroyedSettlement, null, null);
+							Find.LetterStack.ReceiveLetter("LabelConquestRaze".Translate(), "DescConquestRaze".Translate(attackerFaction.Name, defenderFaction.Name), LetterDefOf.NeutralEvent, destroyedSettlement, attackerFaction);
 							ExpandableWorldObjectsUtility.ExpandableWorldObjectsUpdate();
 						}
 						else
@@ -114,7 +114,7 @@ namespace DynamicDiplomacy
 							settlement.Name = SettlementNameGenerator.GenerateSettlementName(settlement, null);
 							Find.WorldObjects.Remove(combatLoc);
 							Find.WorldObjects.Add(settlement);
-							Find.LetterStack.ReceiveLetter("LabelConquest".Translate(), "DescConquest".Translate(defenderFaction.Name, settlement.Name, settlement.Faction.Name), LetterDefOf.NeutralEvent, settlement, null, null);
+							Find.LetterStack.ReceiveLetter("LabelConquest".Translate(), "DescConquest".Translate(defenderFaction.Name, settlement.Name, settlement.Faction.Name), LetterDefOf.NeutralEvent, settlement, attackerFaction);
 						}
 
 						// Defeat check for random conquest
@@ -126,7 +126,7 @@ namespace DynamicDiplomacy
 							if (clonefactioncheck.Count > 0)
 							{
 								defenderFaction.defeated = true;
-								Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(defenderFaction.Name), LetterDefOf.NeutralEvent, null, default, default);
+								Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(defenderFaction.Name), LetterDefOf.NeutralEvent);
 							}
 						}
 
@@ -134,7 +134,7 @@ namespace DynamicDiplomacy
 						if (defeatroll <= IncidentWorker_NPCConquest.defeatChance && !HasAnyOtherBase(combatLoc))
 						{
 							defenderFaction.defeated = true;
-							Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(defenderFaction.Name), LetterDefOf.NeutralEvent, null, default, default);
+							Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(defenderFaction.Name), LetterDefOf.NeutralEvent);
 						}
 					}
 					foreach (Pawn current2 in this.lhs.Concat(this.rhs))
