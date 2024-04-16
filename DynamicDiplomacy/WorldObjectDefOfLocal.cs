@@ -6,5 +6,10 @@ namespace DynamicDiplomacy
     public static class WorldObjectDefOfLocal
     {
         public static WorldObjectDef NPCArena;
+
+        static WorldObjectDefOfLocal()
+        {
+            DefOfHelper.EnsureInitializedInCtor(typeof(WorldObjectDefOfLocal));
+        }
     }
 }

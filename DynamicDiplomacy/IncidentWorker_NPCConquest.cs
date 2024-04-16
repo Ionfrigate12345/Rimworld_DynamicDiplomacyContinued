@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Verse;
 using Verse.AI.Group;
+using Verse.Noise;
 
 namespace DynamicDiplomacy
 {
@@ -63,22 +64,29 @@ namespace DynamicDiplomacy
 
         public static void BeginArenaFight(List<PawnKindDef> lhs, List<PawnKindDef> rhs, Faction baseAttacker, Faction baseDefender, Settlement combatLoc)
         {
-            MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArena);
+            MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
             mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)));
-            mapParent.SetFaction(Faction.OfPlayer);
             Find.WorldObjects.Add(mapParent);
-            Map orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(mapParent.Tile, new IntVec3(100, 1, 100), null);
+            Map orGenerateMap = MapGenerator.GenerateMap(new IntVec3(120, 1, 120), mapParent, mapParent.MapGeneratorDef, mapParent.ExtraGenStepDefs);
+            //Map orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(tile, new IntVec3(100, 1, 100), WorldObjectDefOfLocal.NPCArena);
+            mapParent.SetFaction(Faction.OfPlayer);
             IntVec3 spot;
             IntVec3 spot2;
-            MultipleCaravansCellFinder.FindStartingCellsFor2Groups(orGenerateMap, out spot, out spot2);
+            var edgeSpot1 = CellFinder.RandomEdgeCell(orGenerateMap);
+            spot = CellFinder.RandomClosewalkCellNear(edgeSpot1, orGenerateMap, 6);
+
+            var edgeSpot2 = CellFinder.RandomEdgeCell(orGenerateMap);
+            spot2 = CellFinder.RandomClosewalkCellNear(edgeSpot2, orGenerateMap, 6);
+            //MultipleCaravansCellFinder.FindStartingCellsFor2Groups(orGenerateMap, out spot, out spot2);
+
             List<Pawn> lhs2 = SpawnPawnSet(orGenerateMap, lhs, spot, baseAttacker);
             List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
-            DebugArena component = mapParent.GetComponent<DebugArena>();
+            /*var component = mapParent.GetComponent<DebugArena>();
             component.lhs = lhs2;
             component.rhs = rhs2;
             component.attackerFaction = baseAttacker;
             component.defenderFaction = baseDefender;
-            component.combatLoc = combatLoc;
+            component.combatLoc = combatLoc;*/
             Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap));
         }
 
