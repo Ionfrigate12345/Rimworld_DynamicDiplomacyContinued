@@ -31,8 +31,26 @@ namespace DynamicDiplomacy
 
         public static Settlement RandomSettlement()
         {
+            var activeOrPendingQuestLinkedSettlements = Utils.GetActiveOrPendingQuestLinkedSettlements();
             return (from settlement in Find.WorldObjects.SettlementBases
-                    where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f && !settlement.def.defName.Equals("City_Faction") && !settlement.def.defName.Equals("City_Abandoned") && !settlement.def.defName.Equals("City_Ghost") && !settlement.def.defName.Equals("City_Citadel")
+                    where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f 
+                    && !settlement.def.defName.Equals("City_Faction") 
+                    && !settlement.def.defName.Equals("City_Abandoned") 
+                    && !settlement.def.defName.Equals("City_Ghost") 
+                    && !settlement.def.defName.Equals("City_Citadel")
+                    select settlement).RandomElementWithFallback(null);
+        }
+
+        public static Settlement RandomSettlementNotQuestLinked()
+        {
+            var activeOrPendingQuestLinkedSettlements = Utils.GetActiveOrPendingQuestLinkedSettlements();
+            return (from settlement in Find.WorldObjects.SettlementBases
+                    where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f
+                    && !settlement.def.defName.Equals("City_Faction")
+                    && !settlement.def.defName.Equals("City_Abandoned")
+                    && !settlement.def.defName.Equals("City_Ghost")
+                    && !settlement.def.defName.Equals("City_Citadel")
+                    && !Utils.IsSettlementQuestLinked(settlement)
                     select settlement).RandomElementWithFallback(null);
         }
 
@@ -140,7 +158,7 @@ namespace DynamicDiplomacy
                 return false;
             }
 
-            Settlement AttackerBase = RandomSettlement();
+            Settlement AttackerBase = RandomSettlementNotQuestLinked();
             if (AttackerBase == null)
             {
                 return false;
@@ -233,7 +251,7 @@ namespace DynamicDiplomacy
             }
             else
             {
-                List<Settlement> settlements = Find.WorldObjects.Settlements.ToList<Settlement>();
+                List<Settlement> settlements = Find.WorldObjects.Settlements.Where(settlement => !Utils.IsSettlementQuestLinked(settlement)).ToList<Settlement>();
                 // randomize target selection
                 settlements.Shuffle();
 
