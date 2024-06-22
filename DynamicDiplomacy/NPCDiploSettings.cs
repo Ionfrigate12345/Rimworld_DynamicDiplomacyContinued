@@ -22,8 +22,6 @@ namespace DynamicDiplomacy
             Listing_Standard listing_Standard = new Listing_Standard();
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             listing_Standard.Begin(viewRect);
-            Text.Font = GameFont.Tiny;
-            listing_Standard.Label("NPCRestartWarning".Translate(), -1f, null);
             Text.Font = GameFont.Small;
             listing_Standard.Gap(12f);
             listing_Standard.CheckboxLabeled("RepEnableDiploExp".Translate(), ref this.settings.repEnableDiplo, null);
