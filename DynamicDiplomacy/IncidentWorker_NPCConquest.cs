@@ -14,15 +14,15 @@ namespace DynamicDiplomacy
 {
     class IncidentWorker_NPCConquest : IncidentWorker
     {
-        public static bool allowDistanceCalc;
-        public static bool allowAlliance;
-        public static bool allowRazeClear;
-        public static bool enableConquest;
-        public static bool allowCloneFaction;
-        public static int defeatChance;
-        public static int razeChance;
-        public static bool allowSimulatedConquest;
-        public static float simulatedConquestThreatPoint;
+        public static bool allowDistanceCalc = NPCDiploSettings.Instance.settings.repAllowDistanceCalc;
+        public static bool allowAlliance = NPCDiploSettings.Instance.settings.repAllowAlliance;
+        public static bool allowRazeClear = NPCDiploSettings.Instance.settings.repAllowRazeClear;
+        public static bool enableConquest = NPCDiploSettings.Instance.settings.repEnableConquest;
+        public static bool allowCloneFaction = NPCDiploSettings.Instance.settings.repAllowCloneFaction;
+        public static int defeatChance = NPCDiploSettings.Instance.settings.repDefeatChance;
+        public static int razeChance = NPCDiploSettings.Instance.settings.repRazeChance;
+        public static bool allowSimulatedConquest = NPCDiploSettings.Instance.settings.repAllowSimulatedConquest;
+        public static float simulatedConquestThreatPoint = NPCDiploSettings.Instance.settings.repSimulatedConquestThreatPoint;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
@@ -169,6 +169,8 @@ namespace DynamicDiplomacy
                 return false;
             }
 
+            NPCDiploSettings.UpdateAllSettings();
+
             if (!allowDistanceCalc)
             {
                 if (AttackerBase.HasMap)
@@ -244,6 +246,11 @@ namespace DynamicDiplomacy
                     {
                         AttackerBase.Faction.defeated = true;
                         Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(AttackerBase.Faction.Name), LetterDefOf.NeutralEvent);
+                    }
+
+                    if (DiplomacyWorldComponent.allianceCooldown > 0)
+                    {
+                        DiplomacyWorldComponent.allianceCooldown--;
                     }
 
                     return true;
@@ -493,7 +500,7 @@ namespace DynamicDiplomacy
                 }
 
                 // Alliance code
-                if (IncidentWorker_NPCConquest.allowAlliance && Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown <= 0)
+                if (IncidentWorker_NPCConquest.allowAlliance && DiplomacyWorldComponent.allianceCooldown <= 0)
                 {
                     List<Faction> alliance = new List<Faction>();
                     if (IncidentWorker_NPCDiploChange.allowPerm)
@@ -530,10 +537,14 @@ namespace DynamicDiplomacy
                             bool havemysword = num < 81;
                             if (havemysword)
                             {
+                                AttackerFaction.TryAffectGoodwillWith(other: alliance[i], goodwillChange: -200, canSendMessage: false, canSendHostilityLetter: false);
                                 FactionRelation factionRelation = AttackerFaction.RelationWith(alliance[i], false);
                                 factionRelation.kind = FactionRelationKind.Hostile;
+
+                                alliance[i].TryAffectGoodwillWith(other: AttackerFaction, goodwillChange: -200, canSendMessage: false, canSendHostilityLetter: false);
                                 FactionRelation factionRelation2 = alliance[i].RelationWith(AttackerFaction, false);
                                 factionRelation2.kind = FactionRelationKind.Hostile;
+
                                 finalAlliance.Add(alliance[i]);
                             }
                         }
@@ -545,10 +556,13 @@ namespace DynamicDiplomacy
                             {
                                 if (finalAlliance[y] != finalAlliance[x])
                                 {
+                                    finalAlliance[y].TryAffectGoodwillWith(other: finalAlliance[x], goodwillChange: 200, canSendMessage: false, canSendHostilityLetter: false);
                                     FactionRelation factionRelation3 = finalAlliance[y].RelationWith(finalAlliance[x], false);
-                                    factionRelation3.kind = FactionRelationKind.Neutral;
+                                    factionRelation3.kind = FactionRelationKind.Ally;
+
+                                    finalAlliance[x].TryAffectGoodwillWith(other: finalAlliance[y], goodwillChange: 200, canSendMessage: false, canSendHostilityLetter: false);
                                     FactionRelation factionRelation4 = finalAlliance[x].RelationWith(finalAlliance[y], false);
-                                    factionRelation4.kind = FactionRelationKind.Neutral;
+                                    factionRelation4.kind = FactionRelationKind.Ally;
                                 }
                             }
                             allianceList.Append(finalAlliance[x].ToString()).Append(", ");
@@ -557,17 +571,30 @@ namespace DynamicDiplomacy
                         allianceListString = allianceListString.Trim().TrimEnd(',');
 
                         Find.LetterStack.ReceiveLetter("LabelAlliance".Translate(), "DescAlliance".Translate(allianceListString, AttackerBase.Faction), LetterDefOf.NeutralEvent);
-                        Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown = 11;
+                        DiplomacyWorldComponent.allianceCooldown = 11;
                     }
                 }
 
-                if (Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown > 0)
+                if (DiplomacyWorldComponent.allianceCooldown > 0)
                 {
-                    Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown--;
+                    DiplomacyWorldComponent.allianceCooldown--;
                 }
 
                 return true;
             }
+        }
+        
+        public static void UpdateSettingParameters()
+        {
+            allowDistanceCalc = NPCDiploSettings.Instance.settings.repAllowDistanceCalc;
+            allowAlliance = NPCDiploSettings.Instance.settings.repAllowAlliance;
+            allowRazeClear = NPCDiploSettings.Instance.settings.repAllowRazeClear;
+            enableConquest = NPCDiploSettings.Instance.settings.repEnableConquest;
+            allowCloneFaction = NPCDiploSettings.Instance.settings.repAllowCloneFaction;
+            defeatChance = NPCDiploSettings.Instance.settings.repDefeatChance;
+            razeChance = NPCDiploSettings.Instance.settings.repRazeChance;
+            allowSimulatedConquest = NPCDiploSettings.Instance.settings.repAllowSimulatedConquest;
+            simulatedConquestThreatPoint = NPCDiploSettings.Instance.settings.repSimulatedConquestThreatPoint;
         }
     }
 }

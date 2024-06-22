@@ -1,22 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
+using static UnityEngine.TouchScreenKeyboard;
 
 namespace DynamicDiplomacy
 {
     public class IncidentWorker_NPCDiploChange : IncidentWorker
     {
-        public static bool allowPerm;
-        public static bool enableDiplo;
-        public static bool excludeEmpire;
-        public static bool allowIdeoBloc;
-        public static int ideoSurrenderChance;
+        public static bool allowPerm = NPCDiploSettings.Instance.settings.repAllowPerm;
+        public static bool enableDiplo = NPCDiploSettings.Instance.settings.repEnableDiplo;
+        public static bool excludeEmpire = NPCDiploSettings.Instance.settings.repExcludeEmpire;
+        public static bool allowIdeoBloc = NPCDiploSettings.Instance.settings.repAllowIdeoBloc;
+        public static int ideoSurrenderChance = NPCDiploSettings.Instance.settings.repIdeoSurrenderChance;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
-            return base.CanFireNowSub(parms) && enableDiplo;
+            return base.CanFireNowSub(parms) && enableDiplo && DiplomacyWorldComponent.allianceCooldown <= 0;
         }
 
         private bool TryFindFaction(bool allowPerm, bool excludeEmpire, out Faction faction)
@@ -111,6 +114,13 @@ namespace DynamicDiplomacy
                 return false;
             }
 
+            //Ionfrigate12345 added in 1.5: If DMP (Diplomatic Marriage Plus) has its own version of alliance active, relation change is forbidden.
+            if(DiplomacyWorldComponent.allianceCooldown > 0)
+            {
+                Log.Message("[Dynamic Diplomacy] An alliance is active. Diplo change aborted.");
+                return false;
+            }
+
             Faction faction;
             Faction faction2;
 
@@ -123,10 +133,15 @@ namespace DynamicDiplomacy
                 return false;
             }
 
+            NPCDiploSettings.UpdateAllSettings();
+            Log.Warning("[Dynamic Diplomacy] Test: excludeEmpire " + excludeEmpire + "  allowPerm" + allowPerm);
+
             if (faction.HostileTo(faction2))
             {
+                faction.TryAffectGoodwillWith(other: faction2, goodwillChange: -faction.GoodwillWith(faction2), canSendMessage: false, canSendHostilityLetter: false);
                 FactionRelation factionRelation = faction.RelationWith(faction2, false);
                 factionRelation.kind = FactionRelationKind.Neutral;
+                faction2.TryAffectGoodwillWith(other: faction, goodwillChange: -faction2.GoodwillWith(faction), canSendMessage: false, canSendHostilityLetter: false);
                 FactionRelation factionRelation2 = faction2.RelationWith(faction, false);
                 factionRelation2.kind = FactionRelationKind.Neutral;
 
@@ -173,14 +188,27 @@ namespace DynamicDiplomacy
             }
             else
             {
+                faction.TryAffectGoodwillWith(other: faction2, goodwillChange: -200, canSendMessage: false, canSendHostilityLetter: false);
                 FactionRelation factionRelation = faction.RelationWith(faction2, false);
                 factionRelation.kind = FactionRelationKind.Hostile;
+
+                faction2.TryAffectGoodwillWith(other: faction, goodwillChange: -200, canSendMessage: false, canSendHostilityLetter: false);
                 FactionRelation factionRelation2 = faction2.RelationWith(faction, false);
                 factionRelation2.kind = FactionRelationKind.Hostile;
+
                 Find.LetterStack.ReceiveLetter("LabelDCWar".Translate(), "DescDCWar".Translate(faction.Name, faction2.Name), LetterDefOf.NeutralEvent, null, default, default);
             }
 
             return true;
+        }
+
+        public static void UpdateSettingParameters()
+        {
+            allowPerm = NPCDiploSettings.Instance.settings.repAllowPerm;
+            enableDiplo = NPCDiploSettings.Instance.settings.repEnableDiplo;
+            excludeEmpire = NPCDiploSettings.Instance.settings.repExcludeEmpire;
+            allowIdeoBloc = NPCDiploSettings.Instance.settings.repAllowIdeoBloc;
+            ideoSurrenderChance = NPCDiploSettings.Instance.settings.repIdeoSurrenderChance;
         }
     }
 }

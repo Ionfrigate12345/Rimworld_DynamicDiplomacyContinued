@@ -43,7 +43,15 @@ namespace DynamicDiplomacy
 		}
 
 		public override void CompTick()
-		{
+        {
+            var tickCount = GenTicks.TicksAbs;
+
+            //Ionfrigate12345 added in 1.5: Run this script 4x per second (once per 15 ticks) instead of each tick (which is performance consuming)
+            if (tickCount % 15 != 0)
+            {
+                return;
+            }
+            
 			if (this.lhs == null || this.rhs == null)
 			{
 				Log.Message("Conquest simulation improperly set up!");

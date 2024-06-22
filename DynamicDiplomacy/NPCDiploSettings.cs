@@ -10,6 +10,7 @@ namespace DynamicDiplomacy
         public NPCDiploSettings(ModContentPack content) : base(content)
         {
             this.settings = base.GetSettings<NPCDiploModSettings>();
+            Instance = this;
         }
 
         private static Vector2 scrollPosition;
@@ -91,5 +92,15 @@ namespace DynamicDiplomacy
 
         // Token: 0x04000007 RID: 7
         public readonly NPCDiploModSettings settings;
+        public static NPCDiploSettings Instance { get; private set; }
+
+        public static void UpdateAllSettings()
+        {
+            GameCondition_GenerateHistory.UpdateSettingParameters();
+            IncidentWorker_NPCConquest.UpdateSettingParameters();
+            IncidentWorker_NPCConvert.UpdateSettingParameters();
+            IncidentWorker_NPCDiploChange.UpdateSettingParameters();
+            IncidentWorker_NPCExpansion.UpdateSettingParameters();
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace DynamicDiplomacy
             /*
              * Get all current active and not yet accepted quests, and exclude all settlements linked to these quests.
              * This is for preventing conquests of settlements required for quests, which may make the latters incompletable. 
-             * --Added by Ionfrigate for 1.5 update
+             * --Added by Ionfrigate12345 for 1.5 update
              */
             List<Settlement> questlinkedSettlements = new List<Settlement>();
             List<Quest> activeAndIncomingQuests = Current.Game.questManager.QuestsListForReading.Where(q => q.State == QuestState.Ongoing || q.State == QuestState.NotYetAccepted).ToList();

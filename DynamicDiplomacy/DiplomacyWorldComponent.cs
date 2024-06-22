@@ -5,7 +5,7 @@ namespace DynamicDiplomacy
 {
     public class DiplomacyWorldComponent : WorldComponent
     {
-        public int allianceCooldown;
+        public static int allianceCooldown;
 
         public DiplomacyWorldComponent(World world) : base(world)
         {

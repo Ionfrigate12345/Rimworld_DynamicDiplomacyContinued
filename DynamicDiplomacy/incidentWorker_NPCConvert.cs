@@ -8,7 +8,7 @@ namespace DynamicDiplomacy
 {
     class IncidentWorker_NPCConvert : IncidentWorker
     {
-        public static bool enableConvert;
+        public static bool enableConvert = NPCDiploSettings.Instance.settings.repAllowConvert;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
@@ -33,6 +33,8 @@ namespace DynamicDiplomacy
             {
                 return false;
             }
+
+            NPCDiploSettings.UpdateAllSettings();
 
             // adopt similar ideology from ally
             List<MemeDef> initialmemes = faction.ideos.PrimaryIdeo.memes;
@@ -87,6 +89,10 @@ namespace DynamicDiplomacy
             Find.LetterStack.ReceiveLetter("LabelDDFoundation".Translate(), "DescDDFoundation".Translate(faction.Name, newIdeo.name), LetterDefOf.NeutralEvent);
 
             return true;
+        }
+        public static void UpdateSettingParameters()
+        {
+            enableConvert = NPCDiploSettings.Instance.settings.repAllowConvert;
         }
     }
 }

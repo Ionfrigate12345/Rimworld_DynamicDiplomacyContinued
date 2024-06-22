@@ -74,7 +74,6 @@
     <Compile Include="NPCDiploModSettings.cs" />
     <Compile Include="NPCDiploSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingsImplementer.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WorldObjectCompProperties_DebugArena.cs" />
     <Compile Include="WorldObjectDefOfLocal.cs" />

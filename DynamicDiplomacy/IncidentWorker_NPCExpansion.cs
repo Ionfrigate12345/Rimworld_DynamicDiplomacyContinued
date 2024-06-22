@@ -8,9 +8,9 @@ namespace DynamicDiplomacy
 {
     class IncidentWorker_NPCExpansion : IncidentWorker
     {
-        public static bool enableExpansion;
-        public static int expansionRadius;
-        public static int maxExpansionLimit;
+        public static bool enableExpansion = NPCDiploSettings.Instance.settings.repEnableExpansion;
+        public static int expansionRadius = NPCDiploSettings.Instance.settings.repExpansionRadius;
+        public static int maxExpansionLimit = NPCDiploSettings.Instance.settings.repMaxExpansionLimit;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
@@ -23,6 +23,8 @@ namespace DynamicDiplomacy
             {
                 return false;
             }
+
+            NPCDiploSettings.UpdateAllSettings();
 
             int tile = TileFinder.RandomStartingTile();
             if(!TileFinder.IsValidTileForNewSettlement(tile))
@@ -79,6 +81,12 @@ namespace DynamicDiplomacy
             }
 
             return true;
+        }
+        public static void UpdateSettingParameters()
+        {
+            enableExpansion = NPCDiploSettings.Instance.settings.repEnableExpansion;
+            expansionRadius = NPCDiploSettings.Instance.settings.repExpansionRadius;
+            maxExpansionLimit = NPCDiploSettings.Instance.settings.repMaxExpansionLimit;
         }
     }
 }

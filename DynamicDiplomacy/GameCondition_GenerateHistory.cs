@@ -11,11 +11,19 @@ namespace DynamicDiplomacy
 {
     class GameCondition_GenerateHistory : GameCondition
     {
-        public static int generateHistoryLength;
+        public static int generateHistoryLength = NPCDiploSettings.Instance.settings.repGenerateHistoryLength;
         public int dynamicExpTick = 0;
 
         public override void GameConditionTick()
         {
+            var tickCount = GenTicks.TicksAbs;
+
+            //Ionfrigate12345 added in 1.5: Run this script only once per in-game hour instead of each tick (which is performance consuming)
+            if (tickCount % GenDate.TicksPerHour != 0)
+            {
+                return;
+            }
+            NPCDiploSettings.UpdateAllSettings();
             if (Find.TickManager.TicksGame >= generateHistoryLength)
             {
                 List<Map> maps = Current.Game.Maps;
@@ -73,8 +81,8 @@ namespace DynamicDiplomacy
             }
         }
 
-            // Conquest
-            public static Settlement RandomSettlement()
+        // Conquest
+        public static Settlement RandomSettlement()
         {
             return (from settlement in Find.WorldObjects.SettlementBases
                     where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f && !settlement.def.defName.Equals("City_Faction") && !settlement.def.defName.Equals("City_Abandoned") && !settlement.def.defName.Equals("City_Ghost") && !settlement.def.defName.Equals("City_Citadel")
@@ -336,7 +344,7 @@ namespace DynamicDiplomacy
             }
 
             // Alliance code
-            if (IncidentWorker_NPCConquest.allowAlliance && Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown <= 0)
+            if (IncidentWorker_NPCConquest.allowAlliance && DiplomacyWorldComponent.allianceCooldown <= 0)
             {
                 List<Faction> alliance = new List<Faction>();
                 if (IncidentWorker_NPCDiploChange.allowPerm)
@@ -400,13 +408,13 @@ namespace DynamicDiplomacy
                     allianceListString = allianceListString.Trim().TrimEnd(',');
 
                     Find.LetterStack.ReceiveLetter("LabelAlliance".Translate(), "DescAlliance".Translate(allianceListString, AttackerBase.Faction), LetterDefOf.NeutralEvent);
-                    Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown = 11;
+                    DiplomacyWorldComponent.allianceCooldown = 11;
                 }
             }
 
-            if (Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown > 0)
+            if (DiplomacyWorldComponent.allianceCooldown > 0)
             {
-                Find.World.GetComponent<DiplomacyWorldComponent>().allianceCooldown--;
+                DiplomacyWorldComponent.allianceCooldown--;
             }
 
             return true;
@@ -693,6 +701,11 @@ namespace DynamicDiplomacy
             }
 
             return true;
+        }
+
+        public static void UpdateSettingParameters()
+        {
+            generateHistoryLength = NPCDiploSettings.Instance.settings.repGenerateHistoryLength;
         }
     }
 }
