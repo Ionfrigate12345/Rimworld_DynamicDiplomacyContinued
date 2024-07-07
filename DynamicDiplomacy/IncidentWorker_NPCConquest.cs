@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿using DynamicDiplomacy.AI.LordJobs;
+using RimWorld;
 using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace DynamicDiplomacy
         public static int defeatChance = NPCDiploSettings.Instance.settings.repDefeatChance;
         public static int razeChance = NPCDiploSettings.Instance.settings.repRazeChance;
         public static bool allowSimulatedConquest = NPCDiploSettings.Instance.settings.repAllowSimulatedConquest;
+        public static bool usingSemiSimulation = NPCDiploSettings.Instance.settings.repUsingSemiSimulation;
         public static float simulatedConquestThreatPoint = NPCDiploSettings.Instance.settings.repSimulatedConquestThreatPoint;
 
         protected override bool CanFireNowSub(IncidentParms parms)
@@ -84,30 +86,55 @@ namespace DynamicDiplomacy
 
         public static void BeginArenaFight(List<PawnKindDef> lhs, List<PawnKindDef> rhs, Faction baseAttacker, Faction baseDefender, Settlement combatLoc)
         {
-            MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArena);
-            mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)));
-            mapParent.SetFaction(Faction.OfPlayer);
+            MapParent mapParent;
+            if(IncidentWorker_NPCConquest.usingSemiSimulation)
+            {
+                mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArenaSemiSim);
+                if (TileFinder.TryFindPassableTileWithTraversalDistance(combatLoc.Tile, 5, 8, out var result, 
+                    (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)), 
+                    false, TileFinderMode.Random, false, true))
+                {
+                    mapParent.Tile = result;
+                }
+                else
+                {
+                    mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)));
+                }
+                mapParent.def.label = "LabelConquestBattleStart".Translate(combatLoc.Name);
+                mapParent.SetFaction(Faction.OfPlayer);
+            }
+            else
+            {
+                mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArena);
+                if (TileFinder.TryFindPassableTileWithTraversalDistance(combatLoc.Tile, 5, 8, out var result,
+                    (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)),
+                    false, TileFinderMode.Random, false, true))
+                {
+                    mapParent.Tile = result;
+                }
+                else
+                {
+                    mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)));
+                }
+                mapParent.def.label = "LabelConquestBattleStart".Translate(combatLoc.Name);
+                mapParent.SetFaction(Faction.OfPlayer);
+            }
+
             Find.WorldObjects.Add(mapParent);
-            Map orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(mapParent.Tile, new IntVec3(100, 1, 100), WorldObjectDefOfLocal.NPCArena);
-            IntVec3 spot;
-            IntVec3 spot2;
-            MultipleCaravansCellFinder.FindStartingCellsFor2Groups(orGenerateMap, out spot, out spot2);
-            List<Pawn> lhs2 = SpawnPawnSet(orGenerateMap, lhs, spot, baseAttacker);
-            List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
+
             DebugArena component = mapParent.GetComponent<DebugArena>();
-            component.lhs = lhs2;
-            component.rhs = rhs2;
             component.attackerFaction = baseAttacker;
             component.defenderFaction = baseDefender;
             component.combatLoc = combatLoc;
-            Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap), null, null);
 
-            //Note from Ionfrigate12345
-            //In 1.5, a strange and unknown reason making the map covered by war fog unless there is a player pawn on it. 
-            //So I have to add a player pawn on the map then quickly destroy it to make the whole map visible.
-            Pawn playerObserver = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
-            GenSpawn.Spawn(playerObserver, spot, orGenerateMap, Rot4.Random, WipeMode.Vanish, false);
-            playerObserver.Destroy();
+            if(!IncidentWorker_NPCConquest.usingSemiSimulation)
+            {
+                InitArenaMap(component, baseAttacker, baseDefender, combatLoc, lhs, rhs, false);
+            }
+            else
+            {
+                Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(mapParent), null, null);
+            }
         }
 
         public static List<Pawn> SpawnPawnSet(Map map, List<PawnKindDef> kinds, IntVec3 spot, Faction faction)
@@ -116,37 +143,20 @@ namespace DynamicDiplomacy
             for (int i = 0; i < kinds.Count; i++)
             {
                 Pawn pawn = PawnGenerator.GeneratePawn(kinds[i], faction);
-                pawn.relations.ClearAllRelations();
-                IntVec3 loc = CellFinder.RandomClosewalkCellNear(spot, map, 12, null);
-                GenSpawn.Spawn(pawn, loc, map, Rot4.Random, WipeMode.Vanish, false);
+                //pawn.relations.ClearAllRelations(); //Ionfrigate12345 in 1.5 update: It doesnt seem to be necessary. May cause incompatibility issue,
+                /*IntVec3 loc = CellFinder.RandomClosewalkCellNear(spot, map, 12, null);
+                GenSpawn.Spawn(pawn, loc, map, Rot4.Random, WipeMode.Vanish, false);*/
+                
+                Utils.SpawnOnePawn(map, pawn, spot);
                 list.Add(pawn);
             }
-            LordMaker.MakeNewLord(faction, new LordJob_DefendPoint(map.Center), map, list);
             return list;
         }
 
         public void ConquestGroupGeneration(Faction baseAttacker, Faction baseDefender, Settlement combatLoc)
         {
-            List<PawnKindDef> attackerUnits = new List<PawnKindDef>();
-            List<PawnKindDef> defenderUnits = new List<PawnKindDef>();
-
-            float threatpoint = simulatedConquestThreatPoint;
-            PawnKindDef attUnit = baseAttacker.RandomPawnKind();
-            while (threatpoint > attUnit.combatPower)
-            {
-                attackerUnits.Add(attUnit);
-                threatpoint -= attUnit.combatPower;
-                attUnit = baseAttacker.RandomPawnKind();
-            }
-
-            float threatpoint2 = simulatedConquestThreatPoint;
-            PawnKindDef defUnit = baseDefender.RandomPawnKind();
-            while (threatpoint2 > defUnit.combatPower)
-            {
-                defenderUnits.Add(defUnit);
-                threatpoint2 -= defUnit.combatPower;
-                defUnit = baseDefender.RandomPawnKind();
-            }
+            List<PawnKindDef> attackerUnits = GenerateFactionNPCGroup(baseAttacker, simulatedConquestThreatPoint);
+            List<PawnKindDef> defenderUnits = GenerateFactionNPCGroup(baseDefender, simulatedConquestThreatPoint);
 
             BeginArenaFight(attackerUnits, defenderUnits, baseAttacker, baseDefender, combatLoc);
         }
@@ -594,7 +604,62 @@ namespace DynamicDiplomacy
             defeatChance = NPCDiploSettings.Instance.settings.repDefeatChance;
             razeChance = NPCDiploSettings.Instance.settings.repRazeChance;
             allowSimulatedConquest = NPCDiploSettings.Instance.settings.repAllowSimulatedConquest;
+            usingSemiSimulation = NPCDiploSettings.Instance.settings.repUsingSemiSimulation;
             simulatedConquestThreatPoint = NPCDiploSettings.Instance.settings.repSimulatedConquestThreatPoint;
+        }
+
+        public static List<PawnKindDef> GenerateFactionNPCGroup(Faction faction, float threatpoint)
+        {
+            List<PawnKindDef> pawnKindDefs = new List<PawnKindDef>();
+            PawnKindDef pawnKindDef = faction.RandomPawnKind();
+            while (threatpoint > pawnKindDef.combatPower)
+            {
+                pawnKindDefs.Add(pawnKindDef);
+                threatpoint -= pawnKindDef.combatPower;
+                pawnKindDef = faction.RandomPawnKind();
+            }
+            return pawnKindDefs;
+        }
+
+        public static void InitArenaMap(DebugArena component, Faction baseAttacker, Faction baseDefender, Settlement combatLoc, List<PawnKindDef> lhs, List<PawnKindDef> rhs, bool silenced = false, Map existingMap = null)
+        {
+            Map orGenerateMap;
+            if (existingMap == null)
+            {
+                orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(component.parent.Tile, new IntVec3(100, 1, 100), WorldObjectDefOfLocal.NPCArena);
+            }
+            else {
+                orGenerateMap = existingMap;
+            }
+            IntVec3 spot;
+            IntVec3 spot2;
+            //MultipleCaravansCellFinder.FindStartingCellsFor2Groups(orGenerateMap, out spot, out spot2);//Ionfrigate12345 on 1.5 update: This function may spawn pawns inside mountain rocks.
+            if (!RCellFinder.TryFindRandomPawnEntryCell(out spot, orGenerateMap, CellFinder.EdgeRoadChance_Neutral))
+            {
+                spot = CellFinder.RandomEdgeCell(orGenerateMap);
+            }
+            if (!RCellFinder.TryFindRandomPawnEntryCell(out spot2, orGenerateMap, CellFinder.EdgeRoadChance_Neutral))
+            {
+                spot2 = CellFinder.RandomEdgeCell(orGenerateMap);
+            }
+            List<Pawn> lhs2 = SpawnPawnSet(orGenerateMap, lhs, spot, baseAttacker);
+            List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
+            LordMaker.MakeNewLord(baseAttacker, new LordJob_DefendPoint(orGenerateMap.Center), orGenerateMap, lhs2);
+            LordMaker.MakeNewLord(baseDefender, new LordJob_DefendPoint(orGenerateMap.Center), orGenerateMap, rhs2);
+            component.lhs = lhs2;
+            component.rhs = rhs2;
+            if(!silenced)
+            {
+                Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap), null, null);
+            }
+            component.StartTheFight();
+
+            //Note from Ionfrigate12345
+            //In 1.5, a strange and unknown reason making the map covered by war fog unless there is a player pawn on it. 
+            //So I have to add a player pawn on the map then quickly destroy it to make the whole map visible.
+            Pawn playerObserver = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+            GenSpawn.Spawn(playerObserver, spot, orGenerateMap, Rot4.Random, WipeMode.Vanish, false);
+            playerObserver.Destroy();
         }
     }
 }

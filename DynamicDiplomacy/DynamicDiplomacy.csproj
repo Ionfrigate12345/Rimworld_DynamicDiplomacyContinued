@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\LordJobs\LordJobDefendThenAssaultEnemy.cs" />
     <Compile Include="DebugArena.cs" />
     <Compile Include="incidentWorker_NPCConvert.cs" />
     <Compile Include="DiplomacyWorldComponent.cs" />
@@ -84,5 +85,6 @@
     <Content Include="Resources\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.dll" />
     <Content Include="Resources\UnityEngine.CoreModule.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

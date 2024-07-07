@@ -6,6 +6,7 @@ namespace DynamicDiplomacy
     public static class WorldObjectDefOfLocal
     {
         public static WorldObjectDef NPCArena;
+        public static WorldObjectDef NPCArenaSemiSim;
 
         static WorldObjectDefOfLocal()
         {

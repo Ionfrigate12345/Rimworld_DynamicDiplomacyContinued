@@ -69,6 +69,8 @@ namespace DynamicDiplomacy
             listing_Standard.Gap(4f);
             listing_Standard.CheckboxLabeled("RepNPCBattleExp".Translate(), ref this.settings.repAllowSimulatedConquest, null);
             listing_Standard.Gap(4f);
+            listing_Standard.CheckboxLabeled("RepNPCBattleExpSemiSim".Translate(), ref this.settings.repUsingSemiSimulation, "RepNPCBattleExpSemiSimTip".Translate(this.settings.repIdeoSurrenderChance));
+            listing_Standard.Gap(4f);
             string text2 = this.settings.repSimulatedConquestThreatPoint.ToString();
             listing_Standard.Label("RepNPCBattleThreatExp".Translate(text2), -1f, null);
             listing_Standard.Gap(4f);

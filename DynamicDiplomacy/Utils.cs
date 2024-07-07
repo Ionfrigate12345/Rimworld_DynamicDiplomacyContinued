@@ -53,5 +53,15 @@ namespace DynamicDiplomacy
             }
             return false;
         }
+        public static void SpawnOnePawn(Map map, Pawn pawn, IntVec3 stageLoc)
+        {
+            if (stageLoc == IntVec3.Invalid && !RCellFinder.TryFindRandomPawnEntryCell(out stageLoc, map, CellFinder.EdgeRoadChance_Neutral))
+            {
+                stageLoc = RCellFinder.FindSiegePositionFrom(map.Center, map);
+            }
+            IntVec3 loc = CellFinder.RandomClosewalkCellNear(stageLoc, map, 6);
+            var spawnRotation = Rot4.FromAngleFlat((map.Center - stageLoc).AngleFlat);
+            GenSpawn.Spawn(pawn, loc, map, spawnRotation);
+        }
     }
 }

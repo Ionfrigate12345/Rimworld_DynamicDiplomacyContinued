@@ -26,6 +26,7 @@ namespace DynamicDiplomacy
             Scribe_Values.Look<int>(ref this.repExpansionRadius, "repExpansionRadius", 30, false);
             Scribe_Values.Look<int>(ref this.repMaxExpansionLimit, "repMaxExpansionLimit", 200, false);
             Scribe_Values.Look<bool>(ref this.repAllowSimulatedConquest, "repAllowSimulatedConquest", false, false);
+            Scribe_Values.Look<bool>(ref this.repUsingSemiSimulation, "repUsingSemiSimulation", false, false);
             Scribe_Values.Look<float>(ref this.repSimulatedConquestThreatPoint, "repSimulatedConquestThreatPoint", 2000f, false);
             base.ExposeData();
         }
@@ -49,6 +50,7 @@ namespace DynamicDiplomacy
         public int repExpansionRadius = 30;
         public int repMaxExpansionLimit = 200;
         public bool repAllowSimulatedConquest = false;
+        public bool repUsingSemiSimulation = false; 
         public float repSimulatedConquestThreatPoint = 2000f;
     }
 }
