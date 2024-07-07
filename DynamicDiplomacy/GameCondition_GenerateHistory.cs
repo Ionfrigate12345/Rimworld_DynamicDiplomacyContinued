@@ -16,7 +16,7 @@ namespace DynamicDiplomacy
 
         public override void GameConditionTick()
         {
-            var tickCount = GenTicks.TicksAbs;
+            var tickCount = Find.TickManager.TicksGame;
 
             //Ionfrigate12345 added in 1.5: Run this script only once per in-game hour instead of each tick (which is performance consuming)
             if (tickCount % GenDate.TicksPerHour != 0)
