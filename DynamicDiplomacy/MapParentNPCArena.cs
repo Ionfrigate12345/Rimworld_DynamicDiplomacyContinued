@@ -1,64 +1,55 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Verse;
-using RimWorld.Planet;
+using System.Text;
+using System.Threading.Tasks;
 using RimWorld;
-using System.Security.Cryptography;
+using RimWorld.Planet;
+using UnityEngine;
+using Verse;
 
 namespace DynamicDiplomacy
 {
-	public class DebugArena : WorldObjectComp, IExposable
-	{
-		public List<Pawn> lhs = new List<Pawn>();
+    internal class MapParentNPCArena : MapParent
+    {
+        public List<Pawn> lhs = new List<Pawn>();
 
-		public List<Pawn> rhs = new List<Pawn>();
+        public List<Pawn> rhs = new List<Pawn>();
 
-		public Faction attackerFaction;
+        public Faction attackerFaction;
 
-		public Faction defenderFaction;
+        public Faction defenderFaction;
 
-		public Settlement combatLoc;
+        public Settlement combatLoc;
 
-		private int tickCreated;
+        public int tickCreated;
 
-		private int tickFightStarted;
+        public int tickFightStarted;
 
-        private bool isCombatEnded = false;
+        public bool isCombatEnded = false;
 
-        private const int TimeOutTick = GenDate.TicksPerDay * 2;
+        private const int TICK_TIMEOUT = GenDate.TicksPerDay * 2;
 
-        public DebugArena()
-		{
-			this.tickCreated = Find.TickManager.TicksGame;
-        }
-        public void ExposeData()
+        public MapParentNPCArena() : base()
         {
-            Scribe_References.Look(ref parent, "DynamicDiplomacy_DebugArena_parent", false);
-            Scribe_Collections.Look(ref lhs, "DynamicDiplomacy_DebugArena_lhs", LookMode.Reference);
-            Scribe_Collections.Look(ref rhs, "DynamicDiplomacy_DebugArena_rhs", LookMode.Reference);
-            Scribe_References.Look(ref attackerFaction, "DynamicDiplomacy_DebugArena_attackerFaction", false);
-            Scribe_References.Look(ref defenderFaction, "DynamicDiplomacy_DebugArena_defenderFaction", false);
-            Scribe_References.Look(ref combatLoc, "DynamicDiplomacy_DebugArena_combatLoc", true);
-            Scribe_Values.Look(ref tickCreated, "DynamicDiplomacy_DebugArena_tickCreated", 0);
-            Scribe_Values.Look(ref tickFightStarted, "DynamicDiplomacy_DebugArena_tickFightStarted", 0);
-            Scribe_Values.Look(ref isCombatEnded, "DynamicDiplomacy_DebugArena_isCombatEnded", false);
+            
         }
 
         private static bool HasAnyOtherBase(Settlement defeatedFactionBase)
-		{
-			List<Settlement> settlements = Find.WorldObjects.Settlements;
-			for (int i = 0; i < settlements.Count; i++)
-			{
-				Settlement settlement = settlements[i];
-				if (settlement.Faction == defeatedFactionBase.Faction)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
+        {
+            List<Settlement> settlements = Find.WorldObjects.Settlements;
+            for (int i = 0; i < settlements.Count; i++)
+            {
+                Settlement settlement = settlements[i];
+                if (settlement.Faction == defeatedFactionBase.Faction)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-		public override void CompTick()
+        public override void Tick()
         {
             var tickCount = Find.TickManager.TicksGame;
 
@@ -70,37 +61,38 @@ namespace DynamicDiplomacy
 
             if (isCombatEnded)
             {
-                if (this.ParentHasMap && (parent as MapParent).Map.mapPawns.PawnsInFaction(Faction.OfPlayer).Count() == 0)
+                if (this.HasMap && Map.mapPawns.PawnsInFaction(Faction.OfPlayer).Count() == 0)
                 {
                     Log.Message("[Dynamic Diplomacy] Fight end between " + attackerFaction.Name + " and " + defenderFaction.Name + " for settlement " + combatLoc.Name + ". " + "Removing arena...");
-                    Find.WorldObjects.Remove(this.parent);
+                    Find.WorldObjects.Remove(this);
                 }
-                else if (!this.ParentHasMap)
+                else if (!this.HasMap)
                 {
                     Log.Message("[Dynamic Diplomacy] battle sim not started between " + attackerFaction.Name + " and " + defenderFaction.Name + " for settlement " + combatLoc.Name + ". " + " The player didnt arrive before timeout. Removing arena...");
-                    Find.WorldObjects.Remove(this.parent);
+                    Find.WorldObjects.Remove(this);
                 }
                 return;
             }
 
+            IncidentWorker_NPCConquest.UpdateSettingParameters();
             if (IncidentWorker_NPCConquest.usingSemiSimulation) //Ionfrigate12345 added in 1.5: semi sim mode.Sim battle only with player presence.
             {
-                if (!this.ParentHasMap && Find.TickManager.TicksGame - this.tickCreated > TimeOutTick)
-				{
+                if (!this.HasMap && Find.TickManager.TicksGame - this.tickCreated > TICK_TIMEOUT)
+                {
                     // In semi-simulation mode, timeout means the fight has started but the player exited the map.
                     isCombatEnded = true;
                     OnTimeOut();
                     return;
                 }
 
-                if(this.tickFightStarted == 0)
+                if (this.tickFightStarted == 0)
                 {
-                    //If this tile already has a map, usually generated by another mod like Vehicle Framework before this map does it. In this case use directly this map as battle arena
-                    List<Map> otherMapsOnSameTile = Find.Maps.Where(m => m.Parent.Tile == this.parent.Tile).ToList();
+                    //If this tile already has a map, usually generated by another mod (like SOS2 shuttle) before this mod does the same, in this case use directly this map as battle arena and start immediately battle sim.
+                    List<Map> otherMapsOnSameTile = Find.Maps.Where(m => m.Parent.Tile == this.Tile).ToList();
                     if (otherMapsOnSameTile.Count() > 0)
                     {
                         var otherMap = otherMapsOnSameTile.First();
-                        otherMap.info.parent = (MapParent)this.parent;
+                        otherMap.info.parent = this;
                         IncidentWorker_NPCConquest.InitArenaMap(
                                 this,
                                 attackerFaction,
@@ -114,18 +106,18 @@ namespace DynamicDiplomacy
                     }
                 }
 
-                if (!this.ParentHasMap && this.tickFightStarted == 0)
+                if (!this.HasMap && this.tickFightStarted == 0)
                 {
                     // Check if any player caravan has reached the site. If so, generate the map.
                     var playerCaravanPawns = PawnsFinder.AllCaravansAndTravelingTransportPods_Alive.Where(p => p.Faction == Faction.OfPlayer).ToList();
-                    foreach(var playerCaravanPawn in  playerCaravanPawns)
+                    foreach (var playerCaravanPawn in playerCaravanPawns)
                     {
                         var playerCaravan = playerCaravanPawn.GetCaravan();
-                        if(playerCaravan == null)
+                        if (playerCaravan == null)
                         {
                             continue;
                         }
-                        if (playerCaravan.Tile == this.parent.Tile)
+                        if (playerCaravan.Tile == this.Tile)
                         {
                             // need to wait till map generated (player pawns arrived)
                             IncidentWorker_NPCConquest.InitArenaMap(
@@ -145,7 +137,7 @@ namespace DynamicDiplomacy
             }
             else
             {
-                if ((this.tickFightStarted == 0 && Find.TickManager.TicksGame - this.tickCreated > 10000) || (this.tickFightStarted != 0 && Find.TickManager.TicksGame - this.tickFightStarted > TimeOutTick))
+                if ((this.tickFightStarted == 0 && Find.TickManager.TicksGame - this.tickCreated > 10000) || (this.tickFightStarted != 0 && Find.TickManager.TicksGame - this.tickFightStarted > TICK_TIMEOUT))
                 {
                     isCombatEnded = true;
                     OnTimeOut();
@@ -156,38 +148,38 @@ namespace DynamicDiplomacy
                     StartTheFight();
                 }*/
             }
-			if (this.tickFightStarted != 0)
+            if (this.tickFightStarted != 0)
             {
                 if (this.lhs == null || this.rhs == null)
                 {
                     Log.Warning("[Dynamic Diplomacy] Conquest simulation improperly set up!");
-                    Find.WorldObjects.Remove(this.parent);
+                    Find.WorldObjects.Remove(this);
                     return;
                 }
                 if (!attackerFaction.HostileTo(defenderFaction))
                 {
-					FactionRelation factionRelation = attackerFaction.RelationWith(defenderFaction, false);
-					factionRelation.kind = FactionRelationKind.Hostile;
-				}
-				
-				bool flag = !this.lhs.Any((Pawn pawn) => !pawn.Dead && !pawn.Downed && pawn.Spawned);
-				bool flag2 = !this.rhs.Any((Pawn pawn) => !pawn.Dead && !pawn.Downed && pawn.Spawned);
+                    FactionRelation factionRelation = attackerFaction.RelationWith(defenderFaction, false);
+                    factionRelation.kind = FactionRelationKind.Hostile;
+                }
+
+                bool flag = !this.lhs.Any(pawn => pawn != null && !pawn.Dead && !pawn.Downed && pawn.Spawned);
+                bool flag2 = !this.rhs.Any(pawn => pawn != null && !pawn.Dead && !pawn.Downed && pawn.Spawned);
                 if (flag || flag2)
-				{
-					if (flag && !flag2)
-					{
-						OnDefenderWin();
+                {
+                    if (flag && !flag2)
+                    {
+                        OnDefenderWin();
                     }
-					else
-					{
-						OnAttackerWin();
-					}
-                    if(this.ParentHasMap && (parent as MapParent).Map.mapPawns.PawnsInFaction(Faction.OfPlayer).Count() == 0)
+                    else
+                    {
+                        OnAttackerWin();
+                    }
+                    if (this.HasMap && Map.mapPawns.PawnsInFaction(Faction.OfPlayer).Count() == 0)
                     {
                         //Clear npc pawns if no player pawn present.
                         foreach (Pawn current2 in this.lhs.Concat(this.rhs))
                         {
-                            if (!current2.Destroyed)
+                            if (current2 != null && current2.Destroyed == false)
                             {
                                 current2.Destroy(DestroyMode.Vanish);
                             }
@@ -208,29 +200,29 @@ namespace DynamicDiplomacy
                     }*/
 
                     Log.Message("[Dynamic Diplomacy] battle switch flipped");
-				}
-			}
-		}
+                }
+            }
+        }
 
-		private void OnDefenderWin()
+        private void OnDefenderWin()
         {
             Log.Message("[Dynamic Diplomacy] battle sim defender wins");
             Find.LetterStack.ReceiveLetter("LabelConquestBattleDefended".Translate(), "DescConquestBattleDefended".Translate(defenderFaction.Name, combatLoc.Name, attackerFaction.Name), LetterDefOf.NeutralEvent, combatLoc, attackerFaction);
         }
 
-		private void OnAttackerWin()
-		{
+        private void OnAttackerWin()
+        {
             // Determine whether to raze or take control, random-based
             int razeroll = Rand.Range(1, 100);
             if (razeroll <= IncidentWorker_NPCConquest.razeChance)
             {
-				OnAttackerWinRaze();
+                OnAttackerWinRaze();
             }
             else
             {
                 OnAttackerWinConquest();
             }
-			DefeatCheck();
+            DefeatCheck();
         }
 
         private void OnAttackerWinConquest()
@@ -266,21 +258,21 @@ namespace DynamicDiplomacy
         }
 
         private void OnTimeOut()
-		{
+        {
             int attackerWinRoll = Rand.Range(1, 100);
-            if (attackerWinRoll <= 50 ) 
-			{
-				OnAttackerWin();
-			}
+            if (attackerWinRoll <= 50)
+            {
+                OnAttackerWin();
+            }
             else
             {
-				OnDefenderWin();
+                OnDefenderWin();
             }
             Log.Message("[Dynamic Diplomacy] Fight timed out or player never joined the battle. Result randomly decided.");
         }
 
-		public void StartTheFight()
-		{
+        public void StartTheFight()
+        {
             /*foreach (Pawn current in this.lhs.Concat(this.rhs))
             {
                 if (current.records.GetValue(RecordDefOf.ShotsFired) > 0f || (current.CurJob != null && current.CurJob.def == JobDefOf.AttackMelee && current.Position.DistanceTo(current.CurJob.targetA.Thing.Position) <= 2f))
@@ -294,8 +286,8 @@ namespace DynamicDiplomacy
             this.tickFightStarted = Find.TickManager.TicksGame;
         }
 
-		private void DefeatCheck()
-		{
+        private void DefeatCheck()
+        {
             // Defeat check for random conquest
             if (IncidentWorker_NPCConquest.allowCloneFaction && !HasAnyOtherBase(combatLoc))
             {
@@ -316,35 +308,49 @@ namespace DynamicDiplomacy
                 Find.LetterStack.ReceiveLetter("LetterLabelFactionBaseDefeated".Translate(), "LetterFactionBaseDefeated_FactionDestroyed".Translate(defenderFaction.Name), LetterDefOf.NeutralEvent);
             }
         }
+
         private void ForceReform()
         {
-            if(!this.ParentHasMap)
+            if (!this.HasMap)
             {
                 return;
             }
-            MapParent mapParent = (MapParent)this.parent;
-            if (Dialog_FormCaravan.AllSendablePawns(mapParent.Map, reform: true).Any((Pawn x) => x.IsColonist))
+            if (Dialog_FormCaravan.AllSendablePawns(Map, reform: true).Any((Pawn x) => x.IsColonist))
             {
                 //Messages.Message("MessageYouHaveToReformCaravanNow".Translate(), new GlobalTargetInfo(mapParent.Tile), MessageTypeDefOf.NeutralEvent);
-                Current.Game.CurrentMap = mapParent.Map;
-                Dialog_FormCaravan window = new Dialog_FormCaravan(mapParent.Map, reform: true, delegate
+                Current.Game.CurrentMap = Map;
+                Dialog_FormCaravan window = new Dialog_FormCaravan(Map, reform: true, delegate
                 {
-                    if (mapParent.HasMap)
+                    if (HasMap)
                     {
-                        mapParent.Destroy();
+                        Destroy();
                     }
                 }, mapAboutToBeRemoved: true);
                 Find.WindowStack.Add(window);
                 return;
             }
             List<Pawn> tmpPawns = new List<Pawn>();
-            tmpPawns.AddRange(mapParent.Map.mapPawns.AllPawns.Where((Pawn x) => x.Faction == Faction.OfPlayer || x.HostFaction == Faction.OfPlayer));
+            tmpPawns.AddRange(Map.mapPawns.AllPawns.Where((Pawn x) => x.Faction == Faction.OfPlayer || x.HostFaction == Faction.OfPlayer));
             if (tmpPawns.Any((Pawn x) => CaravanUtility.IsOwner(x, Faction.OfPlayer)))
             {
-                CaravanExitMapUtility.ExitMapAndCreateCaravan(tmpPawns, Faction.OfPlayer, mapParent.Tile, mapParent.Tile, -1);
+                CaravanExitMapUtility.ExitMapAndCreateCaravan(tmpPawns, Faction.OfPlayer, Tile, Tile, -1);
             }
             tmpPawns.Clear();
-            mapParent.Destroy();
+            Destroy();
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+
+            Scribe_References.Look(ref attackerFaction, "DynamicDiplomacy_DebugArena_attackerFaction", false);
+            Scribe_References.Look(ref defenderFaction, "DynamicDiplomacy_DebugArena_defenderFaction", false);
+            Scribe_References.Look(ref combatLoc, "DynamicDiplomacy_DebugArena_combatLoc", true);
+            Scribe_Values.Look(ref tickCreated, "DynamicDiplomacy_DebugArena_tickCreated", 0);
+            Scribe_Values.Look(ref tickFightStarted, "DynamicDiplomacy_DebugArena_tickFightStarted", 0);
+            Scribe_Values.Look(ref isCombatEnded, "DynamicDiplomacy_DebugArena_isCombatEnded", false);
+            Scribe_Collections.Look(ref lhs, "DynamicDiplomacy_DebugArena_lhs", LookMode.Reference);
+            Scribe_Collections.Look(ref rhs, "DynamicDiplomacy_DebugArena_rhs", LookMode.Reference);
         }
     }
 }

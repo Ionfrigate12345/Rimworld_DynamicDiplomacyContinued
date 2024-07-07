@@ -86,10 +86,10 @@ namespace DynamicDiplomacy
 
         public static void BeginArenaFight(List<PawnKindDef> lhs, List<PawnKindDef> rhs, Faction baseAttacker, Faction baseDefender, Settlement combatLoc)
         {
-            MapParent mapParent;
-            if(IncidentWorker_NPCConquest.usingSemiSimulation)
+            MapParentNPCArena mapParent;
+            if(usingSemiSimulation)
             {
-                mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArenaSemiSim);
+                mapParent = (MapParentNPCArena)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArenaSemiSim);
                 if (TileFinder.TryFindPassableTileWithTraversalDistance(combatLoc.Tile, 5, 8, out var result, 
                     (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)), 
                     false, TileFinderMode.Random, false, true))
@@ -105,7 +105,7 @@ namespace DynamicDiplomacy
             }
             else
             {
-                mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArena);
+                mapParent = (MapParentNPCArena)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArena);
                 if (TileFinder.TryFindPassableTileWithTraversalDistance(combatLoc.Tile, 5, 8, out var result,
                     (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)),
                     false, TileFinderMode.Random, false, true))
@@ -122,14 +122,14 @@ namespace DynamicDiplomacy
 
             Find.WorldObjects.Add(mapParent);
 
-            DebugArena component = mapParent.GetComponent<DebugArena>();
-            component.attackerFaction = baseAttacker;
-            component.defenderFaction = baseDefender;
-            component.combatLoc = combatLoc;
+            mapParent.attackerFaction = baseAttacker;
+            mapParent.defenderFaction = baseDefender;
+            mapParent.combatLoc = combatLoc;
+            mapParent.tickCreated = Find.TickManager.TicksGame;
 
-            if(!IncidentWorker_NPCConquest.usingSemiSimulation)
+            if (!usingSemiSimulation)
             {
-                InitArenaMap(component, baseAttacker, baseDefender, combatLoc, lhs, rhs, false);
+                InitArenaMap(mapParent, baseAttacker, baseDefender, combatLoc, lhs, rhs, false);
             }
             else
             {
@@ -191,7 +191,11 @@ namespace DynamicDiplomacy
 
                 Settlement settlement = (Settlement)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
                 settlement.SetFaction((from x in Find.FactionManager.AllFactionsVisible
-                                       where x.def.settlementGenerationWeight > 0f && x.HostileTo(AttackerFaction) && !x.def.hidden && !x.IsPlayer && !x.defeated
+                                       where x.def.settlementGenerationWeight > 0f 
+                                       && x.HostileTo(AttackerFaction)
+                                       && !x.def.hidden 
+                                       && !x.IsPlayer 
+                                       && !x.defeated
                                        select x).RandomElement<Faction>());
                 bool flag3 = settlement.Faction == null;
                 if (flag3)
@@ -621,12 +625,12 @@ namespace DynamicDiplomacy
             return pawnKindDefs;
         }
 
-        public static void InitArenaMap(DebugArena component, Faction baseAttacker, Faction baseDefender, Settlement combatLoc, List<PawnKindDef> lhs, List<PawnKindDef> rhs, bool silenced = false, Map existingMap = null)
+        public static void InitArenaMap(MapParentNPCArena mapParent, Faction baseAttacker, Faction baseDefender, Settlement combatLoc, List<PawnKindDef> lhs, List<PawnKindDef> rhs, bool silenced = false, Map existingMap = null)
         {
             Map orGenerateMap;
             if (existingMap == null)
             {
-                orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(component.parent.Tile, new IntVec3(100, 1, 100), WorldObjectDefOfLocal.NPCArena);
+                orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(mapParent.Tile, new IntVec3(100, 1, 100), WorldObjectDefOfLocal.NPCArena);
             }
             else {
                 orGenerateMap = existingMap;
@@ -646,20 +650,23 @@ namespace DynamicDiplomacy
             List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
             LordMaker.MakeNewLord(baseAttacker, new LordJob_DefendPoint(orGenerateMap.Center), orGenerateMap, lhs2);
             LordMaker.MakeNewLord(baseDefender, new LordJob_DefendPoint(orGenerateMap.Center), orGenerateMap, rhs2);
-            component.lhs = lhs2;
-            component.rhs = rhs2;
+            mapParent.lhs = lhs2;
+            mapParent.rhs = rhs2;
             if(!silenced)
             {
                 Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap), null, null);
             }
-            component.StartTheFight();
+            mapParent.StartTheFight();
 
             //Note from Ionfrigate12345
             //In 1.5, a strange and unknown reason making the map covered by war fog unless there is a player pawn on it. 
             //So I have to add a player pawn on the map then quickly destroy it to make the whole map visible.
-            Pawn playerObserver = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
-            GenSpawn.Spawn(playerObserver, spot, orGenerateMap, Rot4.Random, WipeMode.Vanish, false);
-            playerObserver.Destroy();
+            Pawn playerObserver1 = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+            Utils.SpawnOnePawn(orGenerateMap, playerObserver1, spot);
+            Pawn playerObserver2 = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+            Utils.SpawnOnePawn(orGenerateMap, playerObserver2, spot2);
+            playerObserver1.Destroy();
+            playerObserver2.Destroy();
         }
     }
 }
