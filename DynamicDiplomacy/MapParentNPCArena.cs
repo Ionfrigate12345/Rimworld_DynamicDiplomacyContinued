@@ -31,6 +31,9 @@ namespace DynamicDiplomacy
         public string customLabel;
 
         public string customDescription;
+
+        private const int TICK_TIMEOUT = GenDate.TicksPerDay * 2;
+
         public override string Label
         {
             get
@@ -44,7 +47,10 @@ namespace DynamicDiplomacy
             return customDescription ?? base.GetDescription();
         }
 
-        private const int TICK_TIMEOUT = GenDate.TicksPerDay * 2;
+        public override string GetInspectString()
+        {
+            return base.GetInspectString() + "\n" + attackerFaction.Name + " VS " + defenderFaction.Name;
+        }
 
         public MapParentNPCArena() : base()
         {
@@ -275,8 +281,8 @@ namespace DynamicDiplomacy
 
         private void OnTimeOut()
         {
-            int attackerWinRoll = Rand.Range(1, 100);
-            if (attackerWinRoll <= 50)
+            var winner = UtilsAutoCombatCalculator.GetAutoBattleWinnner(attackerFaction, defenderFaction);
+            if(winner == attackerFaction)
             {
                 OnAttackerWin();
             }
@@ -325,36 +331,6 @@ namespace DynamicDiplomacy
             }
         }
 
-        /*private void ForceReform()
-        {
-            if (!this.HasMap)
-            {
-                return;
-            }
-            if (Dialog_FormCaravan.AllSendablePawns(Map, reform: true).Any((Pawn x) => x.IsColonist))
-            {
-                //Messages.Message("MessageYouHaveToReformCaravanNow".Translate(), new GlobalTargetInfo(mapParent.Tile), MessageTypeDefOf.NeutralEvent);
-                Current.Game.CurrentMap = Map;
-                Dialog_FormCaravan window = new Dialog_FormCaravan(Map, reform: true, delegate
-                {
-                    if (HasMap)
-                    {
-                        Destroy();
-                    }
-                }, mapAboutToBeRemoved: true);
-                Find.WindowStack.Add(window);
-                return;
-            }
-            List<Pawn> tmpPawns = new List<Pawn>();
-            tmpPawns.AddRange(Map.mapPawns.AllPawns.Where((Pawn x) => x.Faction == Faction.OfPlayer || x.HostFaction == Faction.OfPlayer));
-            if (tmpPawns.Any((Pawn x) => CaravanUtility.IsOwner(x, Faction.OfPlayer)))
-            {
-                CaravanExitMapUtility.ExitMapAndCreateCaravan(tmpPawns, Faction.OfPlayer, Tile, Tile, -1);
-            }
-            tmpPawns.Clear();
-            Destroy();
-        }*/
-
         public override void ExposeData()
         {
             base.ExposeData();
@@ -365,6 +341,8 @@ namespace DynamicDiplomacy
             Scribe_Values.Look(ref tickCreated, "DynamicDiplomacy_DebugArena_tickCreated", 0);
             Scribe_Values.Look(ref tickFightStarted, "DynamicDiplomacy_DebugArena_tickFightStarted", 0);
             Scribe_Values.Look(ref isCombatEnded, "DynamicDiplomacy_DebugArena_isCombatEnded", false);
+            Scribe_Values.Look(ref customLabel, "DynamicDiplomacy_DebugArena_customLabel", "");
+            Scribe_Values.Look(ref customDescription, "DynamicDiplomacy_DebugArena_customDescription", "");
             Scribe_Collections.Look(ref lhs, "DynamicDiplomacy_DebugArena_lhs", LookMode.Reference);
             Scribe_Collections.Look(ref rhs, "DynamicDiplomacy_DebugArena_rhs", LookMode.Reference);
         }
