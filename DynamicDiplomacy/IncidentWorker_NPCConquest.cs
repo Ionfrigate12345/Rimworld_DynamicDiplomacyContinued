@@ -90,42 +90,22 @@ namespace DynamicDiplomacy
             if(usingSemiSimulation)
             {
                 mapParent = (MapParentNPCArena)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArenaSemiSim);
-                if (TileFinder.TryFindPassableTileWithTraversalDistance(combatLoc.Tile, 5, 8, out var result, 
-                    (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)), 
-                    false, TileFinderMode.Random, false, true))
-                {
-                    mapParent.Tile = result;
-                }
-                else
-                {
-                    mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)));
-                }
-                mapParent.def.label = "LabelConquestBattleStart".Translate(combatLoc.Name);
-                mapParent.SetFaction(Faction.OfPlayer);
             }
             else
             {
                 mapParent = (MapParentNPCArena)WorldObjectMaker.MakeWorldObject(WorldObjectDefOfLocal.NPCArena);
-                if (TileFinder.TryFindPassableTileWithTraversalDistance(combatLoc.Tile, 5, 8, out var result,
-                    (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)),
-                    false, TileFinderMode.Random, false, true))
-                {
-                    mapParent.Tile = result;
-                }
-                else
-                {
-                    mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, (int tile) => lhs.Concat(rhs).Any((PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)));
-                }
-                mapParent.def.label = "LabelConquestBattleStart".Translate(combatLoc.Name);
-                mapParent.SetFaction(Faction.OfPlayer);
             }
 
-            Find.WorldObjects.Add(mapParent);
-
+            mapParent.SetFaction(Faction.OfPlayer);
+            mapParent.Tile = Utils.FindSuitableTile(combatLoc.Tile, lhs.Concat(rhs));
             mapParent.attackerFaction = baseAttacker;
             mapParent.defenderFaction = baseDefender;
             mapParent.combatLoc = combatLoc;
             mapParent.tickCreated = Find.TickManager.TicksGame;
+            mapParent.customLabel = "LabelConquestBattleStart".Translate(combatLoc.Name);
+            mapParent.customDescription = "DescConquestBattleSimArenaDescription".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name);
+
+            Find.WorldObjects.Add(mapParent);
 
             if (!usingSemiSimulation)
             {

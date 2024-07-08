@@ -28,6 +28,22 @@ namespace DynamicDiplomacy
 
         public bool isCombatEnded = false;
 
+        public string customLabel;
+
+        public string customDescription;
+        public override string Label
+        {
+            get
+            {
+                return customLabel ?? base.Label;
+            }
+        }
+
+        public override string GetDescription()
+        {
+            return customDescription ?? base.GetDescription();
+        }
+
         private const int TICK_TIMEOUT = GenDate.TicksPerDay * 2;
 
         public MapParentNPCArena() : base()
@@ -309,7 +325,7 @@ namespace DynamicDiplomacy
             }
         }
 
-        private void ForceReform()
+        /*private void ForceReform()
         {
             if (!this.HasMap)
             {
@@ -337,7 +353,7 @@ namespace DynamicDiplomacy
             }
             tmpPawns.Clear();
             Destroy();
-        }
+        }*/
 
         public override void ExposeData()
         {
