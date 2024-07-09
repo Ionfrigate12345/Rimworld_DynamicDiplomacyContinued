@@ -96,6 +96,7 @@
     <Compile Include="AI\Extension\StateGraphExtention.cs" />
     <Compile Include="IncidentWorkers\IncidentManager.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Utils\UtilsAI.cs" />
     <Compile Include="Utils\UtilsAutoCombatCalculator.cs" />
     <Compile Include="IncidentWorkers\incidentWorker_NPCConvert.cs" />
     <Compile Include="Utils\UtilsTileFinder.cs" />

@@ -18,7 +18,7 @@ namespace DynamicDiplomacy
         // Token: 0x0600000D RID: 13 RVA: 0x00002574 File Offset: 0x00000774
         public override void DoSettingsWindowContents(Rect inRect)
         {
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, inRect.height + 250f);
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, inRect.height + 500f);
             Listing_Standard listing_Standard = new Listing_Standard();
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             listing_Standard.Begin(viewRect);

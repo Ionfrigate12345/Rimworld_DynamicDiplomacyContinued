@@ -611,7 +611,7 @@ namespace DynamicDiplomacy
             Map orGenerateMap;
             if (existingMap == null)
             {
-                orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(mapParent.Tile, new IntVec3(100, 1, 100), WorldObjectDefOfLocal.NPCArena);
+                orGenerateMap = GetOrGenerateMapUtility.GetOrGenerateMap(mapParent.Tile, new IntVec3(150, 1, 150), WorldObjectDefOfLocal.NPCArena);
             }
             else {
                 orGenerateMap = existingMap;
@@ -629,8 +629,20 @@ namespace DynamicDiplomacy
             }
             List<Pawn> lhs2 = SpawnPawnSet(orGenerateMap, lhs, spot, baseAttacker);
             List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
-            LordMaker.MakeNewLord(baseAttacker, new LordJob_DefendPoint(orGenerateMap.Center), orGenerateMap, lhs2);
-            LordMaker.MakeNewLord(baseDefender, new LordJob_DefendPoint(orGenerateMap.Center), orGenerateMap, rhs2);
+
+            //Apply AI for both sides.
+            //TODO: Use randomized AI between basic, SRFactionalWar or SRFactionContention etc.
+            var roll = Rand.Range(1, 100);
+            if(roll <= 30)
+            {
+                UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, lhs2, orGenerateMap, out var result1);
+                UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, rhs2, orGenerateMap, out var result2);
+            }
+            else
+            {
+                UtilsAI.TryApplyFactionalWarAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, mapParent.tickCreated);
+            }
+
             mapParent.lhs = lhs2;
             mapParent.rhs = rhs2;
             if(!silenced)
