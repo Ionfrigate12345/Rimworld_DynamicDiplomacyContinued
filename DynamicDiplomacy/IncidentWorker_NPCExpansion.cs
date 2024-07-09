@@ -9,6 +9,7 @@ namespace DynamicDiplomacy
     class IncidentWorker_NPCExpansion : IncidentWorker
     {
         public static bool enableExpansion = NPCDiploSettings.Instance.settings.repEnableExpansion;
+        public static int extraExpansionChancePer6H = NPCDiploSettings.Instance.settings.repExtraExpansionChancePer6H;
         public static int expansionRadius = NPCDiploSettings.Instance.settings.repExpansionRadius;
         public static int maxExpansionLimit = NPCDiploSettings.Instance.settings.repMaxExpansionLimit;
 
@@ -85,6 +86,7 @@ namespace DynamicDiplomacy
         public static void UpdateSettingParameters()
         {
             enableExpansion = NPCDiploSettings.Instance.settings.repEnableExpansion;
+            extraExpansionChancePer6H = NPCDiploSettings.Instance.settings.repExtraExpansionChancePer6H;
             expansionRadius = NPCDiploSettings.Instance.settings.repExpansionRadius;
             maxExpansionLimit = NPCDiploSettings.Instance.settings.repMaxExpansionLimit;
         }

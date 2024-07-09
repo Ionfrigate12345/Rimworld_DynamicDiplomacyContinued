@@ -28,6 +28,10 @@ namespace DynamicDiplomacy
             Scribe_Values.Look<bool>(ref this.repAllowSimulatedConquest, "repAllowSimulatedConquest", false, false);
             Scribe_Values.Look<bool>(ref this.repUsingSemiSimulation, "repUsingSemiSimulation", false, false);
             Scribe_Values.Look<float>(ref this.repSimulatedConquestThreatPoint, "repSimulatedConquestThreatPoint", 2000f, false);
+            Scribe_Values.Look<int>(ref this.repExtraDiploChancePer6H, "repExtraDiploChancePer6H", 0, false);
+            Scribe_Values.Look<int>(ref this.repExtraConquestChancePer6H, "repExtraConquestChancePer6H", 0, false);
+            Scribe_Values.Look<int>(ref this.repExtraConvertChancePer6H, "repExtraConvertChancePer6H", 0, false);
+            Scribe_Values.Look<int>(ref this.repExtraExpansionChancePer6H, "repExtraExpansionChancePer6H", 0, false);
             base.ExposeData();
         }
 
@@ -52,5 +56,12 @@ namespace DynamicDiplomacy
         public bool repAllowSimulatedConquest = false;
         public bool repUsingSemiSimulation = false; 
         public float repSimulatedConquestThreatPoint = 2000f;
+
+        //Ionfrigate12345 added in 1.5: Extra chance to file each ecent for each 6 hours, 0-100 in percentage.
+        //These are extra chances independent of storyteller, but will not fire if disabled.
+        public int repExtraDiploChancePer6H = 0;
+        public int repExtraConquestChancePer6H = 0;
+        public int repExtraConvertChancePer6H = 0;
+        public int repExtraExpansionChancePer6H = 0;
     }
 }

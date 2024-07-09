@@ -13,6 +13,7 @@ namespace DynamicDiplomacy
     {
         public static bool allowPerm = NPCDiploSettings.Instance.settings.repAllowPerm;
         public static bool enableDiplo = NPCDiploSettings.Instance.settings.repEnableDiplo;
+        public static int extraDiploChancePer6H = NPCDiploSettings.Instance.settings.repExtraDiploChancePer6H;
         public static bool excludeEmpire = NPCDiploSettings.Instance.settings.repExcludeEmpire;
         public static bool allowIdeoBloc = NPCDiploSettings.Instance.settings.repAllowIdeoBloc;
         public static int ideoSurrenderChance = NPCDiploSettings.Instance.settings.repIdeoSurrenderChance;
@@ -134,7 +135,6 @@ namespace DynamicDiplomacy
             }
 
             NPCDiploSettings.UpdateAllSettings();
-            Log.Warning("[Dynamic Diplomacy] Test: excludeEmpire " + excludeEmpire + "  allowPerm" + allowPerm);
 
             if (faction.HostileTo(faction2))
             {
@@ -206,6 +206,7 @@ namespace DynamicDiplomacy
         {
             allowPerm = NPCDiploSettings.Instance.settings.repAllowPerm;
             enableDiplo = NPCDiploSettings.Instance.settings.repEnableDiplo;
+            extraDiploChancePer6H = NPCDiploSettings.Instance.settings.repExtraDiploChancePer6H;
             excludeEmpire = NPCDiploSettings.Instance.settings.repExcludeEmpire;
             allowIdeoBloc = NPCDiploSettings.Instance.settings.repAllowIdeoBloc;
             ideoSurrenderChance = NPCDiploSettings.Instance.settings.repIdeoSurrenderChance;

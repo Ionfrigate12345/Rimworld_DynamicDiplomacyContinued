@@ -11,7 +11,7 @@ namespace DynamicDiplomacy
 {
     internal class UtilsAutoCombatCalculator
     {
-        public static Faction GetAutoBattleWinnner(Faction attacker, Faction defender)
+        public static Faction GetAutoBattleWinner(Faction attacker, Faction defender)
         {
             int attackerBaseScore = 100;
             int defenderBaseScore = 100;
@@ -27,6 +27,7 @@ namespace DynamicDiplomacy
             return winnerRoll <= attackerTotalScore ? attacker : defender;
         }
 
+        //Ionfrigate12345 updated in 1.5:
         //This function enumerates some well known modded factions which are dramatically much more powerful than vanilla ones,
         //then give them a reasonable bonus score during auto combat calculation.
         public static int GetModdedFactionBonusScore(Faction faction)

@@ -18,6 +18,7 @@ namespace DynamicDiplomacy
         public static bool allowAlliance = NPCDiploSettings.Instance.settings.repAllowAlliance;
         public static bool allowRazeClear = NPCDiploSettings.Instance.settings.repAllowRazeClear;
         public static bool enableConquest = NPCDiploSettings.Instance.settings.repEnableConquest;
+        public static int extraConquestChancePer6H = NPCDiploSettings.Instance.settings.repExtraConquestChancePer6H;
         public static bool allowCloneFaction = NPCDiploSettings.Instance.settings.repAllowCloneFaction;
         public static int defeatChance = NPCDiploSettings.Instance.settings.repDefeatChance;
         public static int razeChance = NPCDiploSettings.Instance.settings.repRazeChance;
@@ -189,7 +190,7 @@ namespace DynamicDiplomacy
                         Faction baseAttacker = settlement.Faction;
                         Faction baseDefender = AttackerFaction;
                         ConquestGroupGeneration(baseAttacker, baseDefender, AttackerBase);
-                        return false;
+                        return true;
                     }
 
                     // Determine whether to raze or take control, random-based
@@ -438,7 +439,7 @@ namespace DynamicDiplomacy
                     Faction baseAttacker = AttackerBase.Faction;
                     Faction baseDefender = FinalDefenderBase.Faction;
                     ConquestGroupGeneration(baseAttacker, baseDefender, FinalDefenderBase);
-                    return false;
+                    return true;
                 }
 
                 // Determine whether to raze or take control, distance-based
@@ -583,6 +584,7 @@ namespace DynamicDiplomacy
             allowAlliance = NPCDiploSettings.Instance.settings.repAllowAlliance;
             allowRazeClear = NPCDiploSettings.Instance.settings.repAllowRazeClear;
             enableConquest = NPCDiploSettings.Instance.settings.repEnableConquest;
+            extraConquestChancePer6H = NPCDiploSettings.Instance.settings.repExtraConquestChancePer6H;
             allowCloneFaction = NPCDiploSettings.Instance.settings.repAllowCloneFaction;
             defeatChance = NPCDiploSettings.Instance.settings.repDefeatChance;
             razeChance = NPCDiploSettings.Instance.settings.repRazeChance;

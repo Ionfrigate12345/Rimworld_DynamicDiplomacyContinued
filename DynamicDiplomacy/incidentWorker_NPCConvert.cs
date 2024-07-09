@@ -9,6 +9,7 @@ namespace DynamicDiplomacy
     class IncidentWorker_NPCConvert : IncidentWorker
     {
         public static bool enableConvert = NPCDiploSettings.Instance.settings.repAllowConvert;
+        public static int extraConvertChancePer6H = NPCDiploSettings.Instance.settings.repExtraConvertChancePer6H;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
@@ -93,6 +94,7 @@ namespace DynamicDiplomacy
         public static void UpdateSettingParameters()
         {
             enableConvert = NPCDiploSettings.Instance.settings.repAllowConvert;
+            extraConvertChancePer6H = NPCDiploSettings.Instance.settings.repExtraConvertChancePer6H;
         }
     }
 }

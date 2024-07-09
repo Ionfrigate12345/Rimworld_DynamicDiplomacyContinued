@@ -63,6 +63,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IncidentManager.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="UtilsAutoCombatCalculator.cs" />
     <Compile Include="incidentWorker_NPCConvert.cs" />
     <Compile Include="DiplomacyWorldComponent.cs" />

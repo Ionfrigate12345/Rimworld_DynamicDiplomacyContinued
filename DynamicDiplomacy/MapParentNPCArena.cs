@@ -281,7 +281,7 @@ namespace DynamicDiplomacy
 
         private void OnTimeOut()
         {
-            var winner = UtilsAutoCombatCalculator.GetAutoBattleWinnner(attackerFaction, defenderFaction);
+            var winner = UtilsAutoCombatCalculator.GetAutoBattleWinner(attackerFaction, defenderFaction);
             if(winner == attackerFaction)
             {
                 OnAttackerWin();
