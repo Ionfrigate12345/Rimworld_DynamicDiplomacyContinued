@@ -97,7 +97,7 @@ namespace DynamicDiplomacy
             }
 
             mapParent.SetFaction(Faction.OfPlayer);
-            mapParent.Tile = Utils.FindSuitableTile(combatLoc.Tile, lhs.Concat(rhs));
+            mapParent.Tile = UtilsTileFinder.FindSuitableTile(combatLoc.Tile, lhs.Concat(rhs));
             mapParent.attackerFaction = baseAttacker;
             mapParent.defenderFaction = baseDefender;
             mapParent.combatLoc = combatLoc;
