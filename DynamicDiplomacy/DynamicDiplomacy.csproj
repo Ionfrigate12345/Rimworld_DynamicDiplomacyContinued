@@ -99,7 +99,7 @@
     <Compile Include="Utils\UtilsAI.cs" />
     <Compile Include="Utils\UtilsAutoCombatCalculator.cs" />
     <Compile Include="IncidentWorkers\incidentWorker_NPCConvert.cs" />
-    <Compile Include="Utils\UtilsTileFinder.cs" />
+    <Compile Include="Utils\UtilsTileCellFinder.cs" />
     <Compile Include="WorldObjects\DiplomacyWorldComponent.cs" />
     <Compile Include="Histories\GameConditionDefOfLocal.cs" />
     <Compile Include="Histories\GameCondition_GenerateHistory.cs" />

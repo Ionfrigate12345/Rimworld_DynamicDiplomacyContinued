@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using RimWorld.Planet;
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace DynamicDiplomacy
 {
-    internal class UtilsTileFinder
+    internal class UtilsTileCellFinder
     {
         public static int FindSuitableTile(int nearTile, IEnumerable<PawnKindDef> pawnKindDefListRequiringBiomeCheck, int minDist = 4, int maxDist = 8)
         {
@@ -113,6 +114,35 @@ namespace DynamicDiplomacy
             }
 
             return Tile.Invalid;
+        }
+
+        public static bool FindReachableFarawayPawnEntryCellOf(out IntVec3 result, Map map, IntVec3 cellStart, int minDist)
+        {
+            Predicate<IntVec3> predicatorReachableAndFurthestPawnEntry = (IntVec3 cellOpposite) =>
+            {
+                // Ensure the two spots are reachable each other.
+                if (!map.reachability.CanReach(cellStart, cellOpposite, Verse.AI.PathEndMode.Touch,
+                        TraverseParms.For(TraverseMode.ByPawn, Danger.Unspecified, false, false, true)
+                    )
+                )
+                {
+                    return false;
+                }
+
+                // Ensure the spot is faraway enough
+                if (IntVec3Utility.DistanceTo(cellStart, cellOpposite) < minDist)
+                {
+                    return false;
+                }
+
+                return true;
+            };
+            bool isSuccess = RCellFinder.TryFindRandomPawnEntryCell(out result, map, CellFinder.EdgeRoadChance_Neutral, false, predicatorReachableAndFurthestPawnEntry);
+            if(!isSuccess)
+            {
+                Log.Warning("[Dynamic Diplomacy] Failed to find the reachable farest cell of:" + cellStart + " Will use other solutions instead for battle simulation on map " + map.uniqueID);
+            }
+            return isSuccess;
         }
     }
 }

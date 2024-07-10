@@ -97,7 +97,7 @@ namespace DynamicDiplomacy
             }
 
             mapParent.SetFaction(Faction.OfPlayer);
-            mapParent.Tile = UtilsTileFinder.FindSuitableTile(combatLoc.Tile, lhs.Concat(rhs));
+            mapParent.Tile = UtilsTileCellFinder.FindSuitableTile(combatLoc.Tile, lhs.Concat(rhs));
             mapParent.attackerFaction = baseAttacker;
             mapParent.defenderFaction = baseDefender;
             mapParent.combatLoc = combatLoc;
@@ -616,16 +616,29 @@ namespace DynamicDiplomacy
             else {
                 orGenerateMap = existingMap;
             }
+            orGenerateMap.fogGrid.ClearAllFog();
+
             IntVec3 spot;
             IntVec3 spot2;
             //MultipleCaravansCellFinder.FindStartingCellsFor2Groups(orGenerateMap, out spot, out spot2);//Ionfrigate12345 on 1.5 update: This function may spawn pawns inside mountain rocks.
             if (!RCellFinder.TryFindRandomPawnEntryCell(out spot, orGenerateMap, CellFinder.EdgeRoadChance_Neutral))
             {
+                Log.Warning("[Dynamic Diplomacy] Failed to find pawn entry cell spot for attacker on map " + orGenerateMap.uniqueID + " . Will use random edge cell instead.");
                 spot = CellFinder.RandomEdgeCell(orGenerateMap);
             }
-            if (!RCellFinder.TryFindRandomPawnEntryCell(out spot2, orGenerateMap, CellFinder.EdgeRoadChance_Neutral))
+            if(!UtilsTileCellFinder.FindReachableFarawayPawnEntryCellOf(out spot2, orGenerateMap, spot, orGenerateMap.Size.x)) //Try find reachable but faraway enough Pawn Entry Cell from the first spot
             {
-                spot2 = CellFinder.RandomEdgeCell(orGenerateMap);
+                if (!UtilsTileCellFinder.FindReachableFarawayPawnEntryCellOf(out spot2, orGenerateMap, spot, orGenerateMap.Size.x - 20)) //Plan B: Reduce the minimum distance requirement and try again.
+                {
+                    if (!UtilsTileCellFinder.FindReachableFarawayPawnEntryCellOf(out spot2, orGenerateMap, spot, orGenerateMap.Size.x - 50)) //Plan C: Reduce futrthurmore and try again
+                    {
+                        if (!RCellFinder.TryFindRandomPawnEntryCell(out spot2, orGenerateMap, CellFinder.EdgeRoadChance_Neutral)) //Plan D: Find any Pawn Entry Cell
+                        {
+                            Log.Warning("[Dynamic Diplomacy] Failed to find pawn entry cell spot for defender on map " + orGenerateMap.uniqueID + " . Will use random edge cell instead.");
+                            spot2 = CellFinder.RandomEdgeCell(orGenerateMap); //Last solution: Find any edge cell
+                        }
+                    }
+                }
             }
             List<Pawn> lhs2 = SpawnPawnSet(orGenerateMap, lhs, spot, baseAttacker);
             List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
@@ -640,7 +653,9 @@ namespace DynamicDiplomacy
             }
             else
             {
-                UtilsAI.TryApplyFactionalWarAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, mapParent.tickCreated);
+                UtilsAI.TryApplyFactionalWarAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, spot, spot2,
+                    Int32.Parse(mapParent.tickCreated.ToString() + orGenerateMap.uniqueID.ToString()) //Use tickCreated + map id (string concat) as unique raid id.
+                );
             }
 
             mapParent.lhs = lhs2;
@@ -650,16 +665,6 @@ namespace DynamicDiplomacy
                 Find.LetterStack.ReceiveLetter("LabelConquestBattleStart".Translate(combatLoc.Name), "DescConquestBattleStart".Translate(baseAttacker.Name, baseDefender.Name, combatLoc.Name), LetterDefOf.NeutralEvent, new LookTargets(spot, orGenerateMap), null, null);
             }
             mapParent.StartTheFight();
-
-            //Note from Ionfrigate12345
-            //In 1.5, a strange and unknown reason making the map covered by war fog unless there is a player pawn on it. 
-            //So I have to add a player pawn on the map then quickly destroy it to make the whole map visible.
-            Pawn playerObserver1 = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
-            Utils.SpawnOnePawn(orGenerateMap, playerObserver1, spot);
-            Pawn playerObserver2 = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
-            Utils.SpawnOnePawn(orGenerateMap, playerObserver2, spot2);
-            playerObserver1.Destroy();
-            playerObserver2.Destroy();
         }
     }
 }
