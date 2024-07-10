@@ -644,15 +644,21 @@ namespace DynamicDiplomacy
             List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
 
             //Apply AI for both sides.
-            //TODO: Use randomized AI between basic, SRFactionalWar or SRFactionContention etc.
             var roll = Rand.Range(1, 100);
-            if(roll <= 30)
+            if(roll <= 20)
             {
+                //Basic AI
                 UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, lhs2, orGenerateMap, out var result1);
                 UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, rhs2, orGenerateMap, out var result2);
             }
+            else if (roll <= 60)
+            {
+                //Factional War Shelling (Siege) AI
+                UtilsAI.TryApplyFactionalWarShellingAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, spot, spot2, 60f);
+            }
             else
             {
+                //Factional War AI
                 UtilsAI.TryApplyFactionalWarAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, spot, spot2,
                     Int32.Parse(mapParent.tickCreated.ToString() + orGenerateMap.uniqueID.ToString()) //Use tickCreated + map id (string concat) as unique raid id.
                 );
