@@ -17,6 +17,7 @@ namespace DynamicDiplomacy
     {
         private const int TickLimit = 5000; //等待tick
         private int _raidSeed; //袭击种子
+        private bool _isAssaultStage = false;
 
         public LordJobStageThenAssaultFactionFirst()
         {

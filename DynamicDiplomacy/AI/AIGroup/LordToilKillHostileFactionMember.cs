@@ -21,7 +21,7 @@ namespace DynamicDiplomacy
         {
             foreach (var pawn in lord.ownedPawns)
             {
-                pawn.mindState.duty = new PawnDuty(DutyDefOf.SrKillHostileFactionMember);
+                pawn.mindState.duty = new PawnDuty(DutyDefOf.DDSrKillHostileFactionMember);
             }
         }
     }

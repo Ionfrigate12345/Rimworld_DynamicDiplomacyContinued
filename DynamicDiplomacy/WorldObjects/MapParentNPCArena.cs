@@ -81,6 +81,12 @@ namespace DynamicDiplomacy
                 return;
             }
 
+            if(tickCount % 120 == 0)
+            {
+                //Update lord so that both sides charge towards the other side according to the new positions.
+
+            }
+
             if (isCombatEnded)
             {
                 if (this.HasMap && Map.mapPawns.PawnsInFaction(Faction.OfPlayer).Count() == 0)

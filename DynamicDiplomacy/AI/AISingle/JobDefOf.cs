@@ -15,6 +15,6 @@ namespace DynamicDiplomacy
     [DefOf]
     public static class JobDefOf
     {
-        [UsedImplicitly] public static readonly JobDef SrKillMelee; //近战杀死敌人
+        [UsedImplicitly] public static readonly JobDef DDSrKillMelee; //近战杀死敌人
     }
 }

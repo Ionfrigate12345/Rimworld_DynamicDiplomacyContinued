@@ -29,7 +29,7 @@ namespace DynamicDiplomacy
             var lordToilDataDefendPoint = Data;
             foreach (var ownedPawn in lord.ownedPawns)
             {
-                ownedPawn.mindState.duty = new PawnDuty(DutyDefOf.SrDefend, lordToilDataDefendPoint.defendPoint)
+                ownedPawn.mindState.duty = new PawnDuty(DutyDefOf.DDSrDefend, lordToilDataDefendPoint.defendPoint)
                 {
                     focusSecond = lordToilDataDefendPoint.defendPoint,
                     radius = (double) ownedPawn.kindDef.defendPointRadius >= 0.0

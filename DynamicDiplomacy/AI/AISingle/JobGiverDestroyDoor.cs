@@ -29,7 +29,7 @@ namespace DynamicDiplomacy
                 return null;
             }
 
-            var job = JobMaker.MakeJob(JobDefOf.SrKillMelee, targetThing);
+            var job = JobMaker.MakeJob(JobDefOf.DDSrKillMelee, targetThing);
             job.maxNumMeleeAttacks = 1;
             job.expiryInterval = 200;
             job.reactingToMeleeThreat = true;

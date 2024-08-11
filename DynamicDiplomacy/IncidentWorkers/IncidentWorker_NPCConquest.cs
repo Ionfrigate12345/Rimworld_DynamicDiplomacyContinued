@@ -643,25 +643,30 @@ namespace DynamicDiplomacy
             List<Pawn> lhs2 = SpawnPawnSet(orGenerateMap, lhs, spot, baseAttacker);
             List<Pawn> rhs2 = SpawnPawnSet(orGenerateMap, rhs, spot2, baseDefender);
 
-            //Apply AI for both sides.
+
+            //Factional War Shelling (Siege) AI, if both sides are post industrial
             var roll = Rand.Range(1, 100);
-            if(roll <= 20)
+            if (roll <= 25 && baseAttacker.def.techLevel >= TechLevel.Industrial && baseDefender.def.techLevel >= TechLevel.Industrial)
             {
-                //Basic AI
-                UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, lhs2, orGenerateMap, out var result1);
-                UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, rhs2, orGenerateMap, out var result2);
-            }
-            else if (roll <= 60)
-            {
-                //Factional War Shelling (Siege) AI
                 UtilsAI.TryApplyFactionalWarShellingAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, spot, spot2, 60f);
             }
             else
             {
-                //Factional War AI
-                UtilsAI.TryApplyFactionalWarAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, spot, spot2,
-                    Int32.Parse(mapParent.tickCreated.ToString() + orGenerateMap.uniqueID.ToString()) //Use tickCreated + map id (string concat) as unique raid id.
-                );
+                //Apply AI for both sides.
+                var roll2 = Rand.Range(1, 100);
+                if (roll2 <= 50)
+                {
+                    //Basic AI
+                    UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, lhs2, orGenerateMap, out var result1);
+                    UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, rhs2, orGenerateMap, out var result2);
+                }
+                else
+                {
+                    //Factional War AI
+                    UtilsAI.TryApplyFactionalWarAIFailSafeBasic(baseAttacker, baseDefender, lhs2, rhs2, orGenerateMap, spot, spot2,
+                        Int32.Parse(mapParent.tickCreated.ToString() + orGenerateMap.uniqueID.ToString()) //Use tickCreated + map id (string concat) as unique raid id.
+                    );
+                }
             }
 
             mapParent.lhs = lhs2;
