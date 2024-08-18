@@ -91,12 +91,10 @@ namespace DynamicDiplomacy
             {
                 if (this.HasMap && Map.mapPawns.PawnsInFaction(Faction.OfPlayer).Count() == 0)
                 {
-                    Log.Message("[Dynamic Diplomacy] Fight end between " + attackerFaction.Name + " and " + defenderFaction.Name + " for settlement " + combatLoc.Name + ". " + "Removing arena...");
                     Find.WorldObjects.Remove(this);
                 }
                 else if (!this.HasMap)
                 {
-                    Log.Message("[Dynamic Diplomacy] battle sim not started between " + attackerFaction.Name + " and " + defenderFaction.Name + " for settlement " + combatLoc.Name + ". " + " The player didnt arrive before timeout. Removing arena...");
                     Find.WorldObjects.Remove(this);
                 }
                 return;

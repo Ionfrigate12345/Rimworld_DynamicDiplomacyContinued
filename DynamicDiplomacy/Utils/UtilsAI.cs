@@ -69,7 +69,7 @@ namespace DynamicDiplomacy
         //Basic AI: both sides charge towards the center
         public static Lord MakeBasicLordForPawns(Faction faction, IEnumerable<Pawn> pawns, Map map, out bool result)
         {
-            var lord = LordMaker.MakeNewLord(faction, new LordJobDefendPoint(map.Center, 10), map, pawns);
+            var lord = LordMaker.MakeNewLord(faction, new LordJob_DefendPoint(map.Center, 10), map, pawns);
             result = lord != null;
             return lord;
         }
