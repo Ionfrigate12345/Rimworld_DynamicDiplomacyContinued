@@ -35,8 +35,8 @@ namespace DynamicDiplomacy
                 }
                 Log.Warning("[Dynamic Diplomacy] Failed to apply Factional War shelling AI for battle sim. Will use basic AI instead.");
                 //Use basic AI
-                UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, pawnsAttacker, map, out resultAttacker);
-                UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, pawnsDefender, map, out resultDefender);
+                UtilsAI.MakeBasicLordForPawns(baseAttacker, pawnsAttacker, map, out resultAttacker);
+                UtilsAI.MakeBasicLordForPawns(baseDefender, pawnsDefender, map, out resultDefender);
             }
         }
 
@@ -61,15 +61,15 @@ namespace DynamicDiplomacy
                 Log.Warning("[Dynamic Diplomacy] Failed to apply shelling AI for battle sim. Will use basic AI instead.");
 
                 //Use basic AI
-                UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, pawnsAttacker, map, out resultAttacker);
-                UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, pawnsDefender, map, out resultDefender);
+                UtilsAI.MakeBasicLordForPawns(baseAttacker, pawnsAttacker, map, out resultAttacker);
+                UtilsAI.MakeBasicLordForPawns(baseDefender, pawnsDefender, map, out resultDefender);
             }
         }
 
-        //Basic AI: charge towards the enemy faction
-        public static Lord MakeBasicLordForPawns(Faction faction, Faction enemyFaction, IEnumerable<Pawn> pawns, Map map, out bool result)
+        //Basic AI: both sides charge towards the center
+        public static Lord MakeBasicLordForPawns(Faction faction, IEnumerable<Pawn> pawns, Map map, out bool result)
         {
-            var lord = LordMaker.MakeNewLord(faction, new LordJobAssaultFactionFirst(faction, enemyFaction), map, pawns);
+            var lord = LordMaker.MakeNewLord(faction, new LordJobDefendPoint(map.Center, 10), map, pawns);
             result = lord != null;
             return lord;
         }

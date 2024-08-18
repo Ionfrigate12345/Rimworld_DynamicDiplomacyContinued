@@ -657,8 +657,8 @@ namespace DynamicDiplomacy
                 if (roll2 <= 50)
                 {
                     //Basic AI
-                    UtilsAI.MakeBasicLordForPawns(baseAttacker, baseDefender, lhs2, orGenerateMap, out var result1);
-                    UtilsAI.MakeBasicLordForPawns(baseDefender, baseAttacker, rhs2, orGenerateMap, out var result2);
+                    UtilsAI.MakeBasicLordForPawns(baseAttacker, lhs2, orGenerateMap, out var result1);
+                    UtilsAI.MakeBasicLordForPawns(baseDefender, rhs2, orGenerateMap, out var result2);
                 }
                 else
                 {
