@@ -12,43 +12,43 @@ namespace DynamicDiplomacy
 {
     internal class UtilsTileCellFinder
     {
-        public static int FindSuitableTile(int nearTile, IEnumerable<PawnKindDef> pawnKindDefListRequiringBiomeCheck, int minDist = 4, int maxDist = 8)
+        public static PlanetTile FindSuitableTile(PlanetTile nearTile, IEnumerable<PawnKindDef> pawnKindDefListRequiringBiomeCheck, int minDist = 4, int maxDist = 8)
         {
-            int result = Tile.Invalid;
+            PlanetTile result = PlanetTile.Invalid;
 
             if (ModsConfig.IsActive("kentington.saveourship2") || ModsConfig.IsActive("sindre0830.rimnauts2"))
             {
                 //SOS2 and Rimnauts2 seem to disturb biome check. Use fixed outdoor temperature check instead.
-                return FindSuitableTileFixedModerateTempFirst(nearTile, minDist, maxDist);
+                return FindSuitableTileFixedModerateTempFirst(nearTile.tileId, minDist, maxDist);
             }
             else
             {
                 //Without SOS2 or Rimnauts2: Check biome first. If doesnt find suitable then use fixed temperature check.
-                result = FindSuitableTileBiomeCheckFirst(nearTile, pawnKindDefListRequiringBiomeCheck, minDist, maxDist, false);
-                if (result > 0)
+                result = FindSuitableTileBiomeCheckFirst(nearTile.tileId, pawnKindDefListRequiringBiomeCheck, minDist, maxDist, false);
+                if (result.tileId > 0)
                 {
                     return result;
                 }
-                return FindSuitableTileFixedModerateTempFirst(nearTile, minDist, maxDist);
+                return FindSuitableTileFixedModerateTempFirst(nearTile.tileId, minDist, maxDist);
             }
         }
 
-        public static int FindSuitableTileFixedModerateTempFirst(int nearTile, int minDist = 4, int maxDist = 8, bool ignoreDistanceIfFails = true)
+        public static PlanetTile FindSuitableTileFixedModerateTempFirst(int nearTile, int minDist = 4, int maxDist = 8, bool ignoreDistanceIfFails = true)
         {
-            Predicate<int> predicatorTemp0To30 = (int tile) =>
+            Predicate<PlanetTile> predicatorTemp0To30 = (PlanetTile tile) =>
                 Find.World.tileTemperatures.GetOutdoorTemp(tile) >= 0 &&
                 Find.World.tileTemperatures.GetOutdoorTemp(tile) <= 30;
-            Predicate<int> predicatorTempMinus10To40 = (int tile) =>
+            Predicate<PlanetTile> predicatorTempMinus10To40 = (PlanetTile tile) =>
                 Find.World.tileTemperatures.GetOutdoorTemp(tile) >= -10 &&
                 Find.World.tileTemperatures.GetOutdoorTemp(tile) <= 40;
 
-            int result = Tile.Invalid;
+            PlanetTile result = PlanetTile.Invalid;
 
             //Plan A: Find nearby accessible tiles with temperature between 0 - 30
             if (TileFinder.TryFindPassableTileWithTraversalDistance(nearTile, minDist, maxDist, out result, predicatorTemp0To30,
                 false, TileFinderMode.Random, false, true))
             {
-                if (result > 0)
+                if (result.tileId > 0)
                 {
                     return result;
                 }
@@ -57,7 +57,7 @@ namespace DynamicDiplomacy
             if (TileFinder.TryFindPassableTileWithTraversalDistance(nearTile, minDist, maxDist, out result, predicatorTempMinus10To40,
                 false, TileFinderMode.Random, false, true))
             {
-                if (result > 0)
+                if (result.tileId > 0)
                 {
                     return result;
                 }
@@ -67,7 +67,7 @@ namespace DynamicDiplomacy
             {
                 //Plan C: Find any accessible tiles with temperature between 0 - 30
                 result = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, predicatorTemp0To30);
-                if (result > 0)
+                if (result.tileId > 0)
                 {
                     return result;
                 }
@@ -76,17 +76,17 @@ namespace DynamicDiplomacy
                 return TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, null);
             }
 
-            return Tile.Invalid;
+            return PlanetTile.Invalid;
         }
 
-        public static int FindSuitableTileBiomeCheckFirst(int nearTile, IEnumerable<PawnKindDef> pawnKindDefListRequiringBiomeCheck, int minDist = 4, int maxDist = 8, bool ignoreDistanceIfFails = true)
+        public static PlanetTile FindSuitableTileBiomeCheckFirst(PlanetTile nearTile, IEnumerable<PawnKindDef> pawnKindDefListRequiringBiomeCheck, int minDist = 4, int maxDist = 8, bool ignoreDistanceIfFails = true)
         {
-            Predicate<int> predicatorSuitableBiome = (int tile) =>
+            Predicate<PlanetTile> predicatorSuitableBiome = (PlanetTile tile) =>
                 pawnKindDefListRequiringBiomeCheck.Any(
                     (PawnKindDef pawnkind) => Find.World.tileTemperatures.SeasonAndOutdoorTemperatureAcceptableFor(tile, pawnkind.race)
                 );
 
-            int result = Tile.Invalid;
+            PlanetTile result = PlanetTile.Invalid;
 
             //Plan A: Find nearby accessible tiles with suitable biome
             if (TileFinder.TryFindPassableTileWithTraversalDistance(
@@ -94,7 +94,7 @@ namespace DynamicDiplomacy
                 )
             )
             {
-                if (result > 0)
+                if (result.tileId > 0)
                 {
                     return result;
                 }
@@ -104,7 +104,7 @@ namespace DynamicDiplomacy
             {
                 //Plan B: Find any accessible tiles with suitable biome
                 result = TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, predicatorSuitableBiome);
-                if (result > 0)
+                if (result.tileId > 0)
                 {
                     return result;
                 }
@@ -113,7 +113,7 @@ namespace DynamicDiplomacy
                 return TileFinder.RandomSettlementTileFor(Faction.OfPlayer, true, null);
             }
 
-            return Tile.Invalid;
+            return PlanetTile.Invalid;
         }
 
         public static bool FindReachableFarawayPawnEntryCellOf(out IntVec3 result, Map map, IntVec3 cellStart, int minDist)

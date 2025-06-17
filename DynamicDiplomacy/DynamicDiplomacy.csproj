@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>C:\SteamLibrary\steamapps\common\RimWorld\Mods\DynamicDiplomacyContinued\1.5\Assemblies\</OutputPath>
+    <OutputPath>C:\SteamLibrary\steamapps\common\RimWorld\Mods\DynamicDiplomacyContinued\1.6\Assemblies\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>

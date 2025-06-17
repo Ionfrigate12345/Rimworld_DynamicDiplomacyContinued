@@ -71,7 +71,7 @@ namespace DynamicDiplomacy
             return false;
         }
 
-        public override void Tick()
+        protected override void Tick()
         {
             var tickCount = Find.TickManager.TicksGame;
 
@@ -135,7 +135,7 @@ namespace DynamicDiplomacy
                 if (!this.HasMap && this.tickFightStarted == 0)
                 {
                     // Check if any player caravan has reached the site. If so, generate the map.
-                    var playerCaravanPawns = PawnsFinder.AllCaravansAndTravelingTransportPods_Alive.Where(p => p.Faction == Faction.OfPlayer).ToList();
+                    var playerCaravanPawns = PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive.Where(p => p.Faction == Faction.OfPlayer).ToList();
                     foreach (var playerCaravanPawn in playerCaravanPawns)
                     {
                         var playerCaravan = playerCaravanPawn.GetCaravan();

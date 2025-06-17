@@ -26,7 +26,7 @@ namespace DynamicDiplomacy
             listing_Standard.Gap(12f);
             listing_Standard.CheckboxLabeled("RepEnableDiploExp".Translate(), ref this.settings.repEnableDiplo, null);
             listing_Standard.Gap(4f);
-            listing_Standard.Label($"{"RepExtraIncidentChanceNPCDiploChange".Translate(settings.repExtraDiploChancePer6H)}", -1, "RepExtraIncidentChanceNPCDiploChangeTip".Translate());
+            listing_Standard.Label("RepExtraIncidentChanceNPCDiploChange".Translate(settings.repExtraDiploChancePer6H), -1, "RepExtraIncidentChanceNPCDiploChangeTip".Translate());
             settings.repExtraDiploChancePer6H = (int)listing_Standard.Slider(settings.repExtraDiploChancePer6H, 0, 100);
             listing_Standard.Gap(4f);
             listing_Standard.CheckboxLabeled("RepAllowPermExp".Translate(), ref this.settings.repAllowPerm, null);
@@ -37,14 +37,14 @@ namespace DynamicDiplomacy
             listing_Standard.Gap(4f);
             listing_Standard.CheckboxLabeled("RepAllowDDConvertExp".Translate(), ref this.settings.repAllowConvert, "RepAllowDDConvertExpTip".Translate());
             listing_Standard.Gap(4f);
-            listing_Standard.Label($"{"RepExtraIncidentChanceNPCConvert".Translate(settings.repExtraConvertChancePer6H)}", -1, "RepExtraIncidentChanceNPCConvertTip".Translate());
+            listing_Standard.Label("RepExtraIncidentChanceNPCConvert".Translate(settings.repExtraConvertChancePer6H), -1, "RepExtraIncidentChanceNPCConvertTip".Translate());
             settings.repExtraConvertChancePer6H = (int)listing_Standard.Slider(settings.repExtraConvertChancePer6H, 0, 100);
             listing_Standard.Gap(4f);
             listing_Standard.CheckboxLabeled("RepAllowCloneFactionExp".Translate(), ref this.settings.repAllowCloneFaction, "RepAllowCloneFactionExpTip".Translate());
             listing_Standard.Gap(16f);
             listing_Standard.CheckboxLabeled("RepEnableExpansionExp".Translate(), ref this.settings.repEnableExpansion, "RepEnableExpansionExpTip".Translate());
             listing_Standard.Gap(4f);
-            listing_Standard.Label($"{"RepExtraIncidentChanceNPCExpansion".Translate(settings.repExtraExpansionChancePer6H)}", -1, "RepExtraIncidentChanceNPCExpansionTip".Translate());
+            listing_Standard.Label("RepExtraIncidentChanceNPCExpansion".Translate(settings.repExtraExpansionChancePer6H), -1, "RepExtraIncidentChanceNPCExpansionTip".Translate());
             settings.repExtraExpansionChancePer6H = (int)listing_Standard.Slider(settings.repExtraExpansionChancePer6H, 0, 100);
             listing_Standard.Gap(4f);
             listing_Standard.Label("RepMaxExpansionLimitExp".Translate(this.settings.repMaxExpansionLimit.ToString()));
@@ -58,7 +58,7 @@ namespace DynamicDiplomacy
             listing_Standard.Gap(16f);
             listing_Standard.CheckboxLabeled("RepEnableConquestExp".Translate(), ref this.settings.repEnableConquest, null);
             listing_Standard.Gap(4f);
-            listing_Standard.Label($"{"RepExtraIncidentChanceNPCConquest".Translate(settings.repExtraConquestChancePer6H)}", -1, "RepExtraIncidentChanceNPCConquestTip".Translate());
+            listing_Standard.Label("RepExtraIncidentChanceNPCConquest".Translate(settings.repExtraConquestChancePer6H), -1, "RepExtraIncidentChanceNPCConquestTip".Translate());
             settings.repExtraConquestChancePer6H = (int)listing_Standard.Slider(settings.repExtraConquestChancePer6H, 0, 100);
             listing_Standard.Gap(4f);
             listing_Standard.CheckboxLabeled("RepAllowDistanceCalcExp".Translate(), ref this.settings.repAllowDistanceCalc, "RepAllowDistanceCalcExpTip".Translate());
