@@ -35,7 +35,9 @@ namespace DynamicDiplomacy
         {
             var activeOrPendingQuestLinkedSettlements = Utils.GetActiveOrPendingQuestLinkedSettlements();
             return (from settlement in Find.WorldObjects.SettlementBases
-                    where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f 
+                    where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f
+                    && settlement.Biome != BiomeDefOf.Orbit
+                    && settlement.Biome != BiomeDefOf.Space
                     && !settlement.def.defName.Equals("City_Faction") 
                     && !settlement.def.defName.Equals("City_Abandoned") 
                     && !settlement.def.defName.Equals("City_Ghost") 
@@ -48,6 +50,8 @@ namespace DynamicDiplomacy
             var activeOrPendingQuestLinkedSettlements = Utils.GetActiveOrPendingQuestLinkedSettlements();
             return (from settlement in Find.WorldObjects.SettlementBases
                     where !settlement.Faction.IsPlayer && settlement.Faction.def.settlementGenerationWeight > 0f
+                    && settlement.Biome != BiomeDefOf.Orbit
+                    && settlement.Biome != BiomeDefOf.Space
                     && !settlement.def.defName.Equals("City_Faction")
                     && !settlement.def.defName.Equals("City_Abandoned")
                     && !settlement.def.defName.Equals("City_Ghost")
