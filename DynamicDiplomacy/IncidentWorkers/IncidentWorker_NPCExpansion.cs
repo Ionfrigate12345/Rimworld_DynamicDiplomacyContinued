@@ -32,7 +32,10 @@ namespace DynamicDiplomacy
             {
                 return false;
             }
-            List<Settlement> settlements = Find.WorldObjects.Settlements.ToList<Settlement>();
+            List<Settlement> settlements = Find.WorldObjects.Settlements.Where(
+                s => s.Biome != BiomeDefOf.Orbit
+                && s.Biome != BiomeDefOf.Space
+            ).ToList<Settlement>();
             if(settlements.Count > maxExpansionLimit)
             {
                 Log.Message("current settlememt count of " + settlements.Count.ToString() + " greater than max expansion limit of " + maxExpansionLimit.ToString());
